@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bluemobi.pro.service.impl.GiftServiceImpl">
+
+	<!-- 礼品列表 -->
+	<select id="list" parameterType="map" resultType="map">
+		SELECT 
+			g.id gift_id,
+			`name` gift_name,
+			g.price gift_price,
+			g.coin gift_coin,
+			g.small_image_url gift_pic,
+			(SELECT COUNT(DISTINCT(ge.`user_id`)) FROM gift_exchange ge WHERE ge.gift_id = g.id ) gift_exchange_nums,
+			(SELECT s.coin FROM stuuser s WHERE s.id = #{userId}) haveCoin
+		FROM
+			gift g
+		WHERE
+			g.g_status = 1
+	</select>
+	
+	
+	<!-- 获取爱佑币，商品价格 -->
+	<select id="getCoinAndPirce" parameterType="map" resultType="map">
+		SELECT 
+			g.coin,
+			(SELECT s.coin FROM stuuser s WHERE s.id = #{userId} ) haveCoin
+		FROM
+			gift g
+		WHERE
+			g.id = #{gift_id}
+	</select>
+	
+	<!-- 礼品详情 -->
+	<select id="detail" parameterType="map" resultType="map">
+		SELECT 
+			IFNULL(ge.user_id,"") user_id,
+			IFNULL(s.head,"")  user_avater,
+			IFNULL(s.nickname ,"") user_nickname,
+			IFNULL(g.detail,"") gift_detail
+		FROM
+		 	gift_exchange ge
+ 		RIGHT JOIN 
+ 			stuuser s 
+ 		ON  
+ 			ge.user_id = s.id 
+ 		RIGHT JOIN 
+ 			gift g 
+ 		ON 
+ 			g.id = ge.gift_id 
+ 		WHERE
+ 			g.id = #{gift_id}
+	</select>
+	
+	<!-- 礼品兑换 -->
+	<insert id="exchange" parameterType="map">
+		INSERT INTO gift_exchange
+		(
+			order_no,
+			gift_id,
+			user_id,
+			`nums`,
+			create_time
+		)
+		VALUES
+		(
+			#{gift_id},
+			#{gift_id},
+			#{userId},
+			#{nums},
+			NOW()
+		)
+	</insert>
+	
+	<!-- ==================================== 后台管理 ========================================= -->
+	
+	<!-- 新增礼品 -->
+	<insert id="insert" parameterType="map" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO gift
+		(
+			name,
+			price,
+			coin,
+			pic,
+			small_image_url,
+			detail,
+			createTime
+		)
+		VALUES
+		(
+			#{name},
+			#{price},
+			#{coin},
+			#{pic},
+			#{small_image_url},
+			#{detail},
+			NOW()
+		)
+	</insert>
+	
+	
+	<!-- 后台礼品列表 -->
+	<select id="giftList" parameterType="map" resultType="map">
+		SELECT
+			id,
+			name,
+			price,
+			coin,
+			g_status,
+			g_status AS gs
+		FROM
+			gift
+		WHERE 
+		 	1 = 1
+		 <if test="name != null and name != ''">
+		 	AND name LIKE CONCAT('%' , #{name} , '%')
+		 </if>
+	</select>
+	
+	<!-- 后台根据ID获取礼品信息 -->
+	<select id="getById" parameterType="map" resultType="map">
+		SELECT 
+			id,
+			name,
+			price,
+			coin,
+			pic,
+			detail
+		FROM
+			gift
+		WHERE
+			id = #{id}
+	</select>
+	
+	<!-- 获取礼品列表 -->
+	<select id="getGiftList" parameterType="map" resultType="map">
+		SELECT
+			g.id
+			g.name,
+			g.price,
+		FROM
+			gift g
+		WHERE
+			1 = 1
+		<if test="name != null and name != ''">
+			g.name LIKE CONCAT('%',#{name},'%')
+		</if>
+	</select>
+	
+	<!-- 获取礼品详情 -->
+	<select id="getGiftDetail" parameterType="map" resultType="map">
+		SELECT 
+			g.id,
+			g.name,
+			g.price,
+			g.pic,
+			g.detail
+		FROM
+			gift g
+		WHERE
+			1 = 1
+		AND
+			g.id = #{id}
+	</select>
+	
+	<!-- 更新礼品 -->
+	<update id="updateGift" parameterType="map">
+		UPDATE
+			gift g
+		<set>
+			<if test="name != null and name != ''">
+				g.name = #{name},
+			</if>
+			<if test="price != null and price != ''">
+				g.price = #{price},
+			</if>
+			<if test="pic != null and pic != ''">
+				g.pic = #{pic},
+			</if>
+			<if test="detail != null and detail != ''">
+				g.detail = #{detail},
+			</if>
+			<if test="g_status != null and g_status != ''">
+				g.g_status = #{g_status},
+			</if>
+			g.motifyTime = NOW()
+		</set>
+		WHERE 
+			1 = 1
+		AND
+			g.id = #{id}
+	</update>
+	
+	<!-- 删除礼品 -->
+	<delete id="delGift" parameterType="int">
+		DELETE FROM gift WHERE id = #{id}
+	</delete>
+	
+	<!-- 获取订单列表 -->
+	<select id="getOrderList" parameterType="map" resultType="map">
+		SELECT
+			ge.id,
+			ge.order_no,
+			g.name,
+			g.coin,
+			ge.nums,
+			ge.create_time,
+			(select s.name from stuuser s where s.id = ge.user_id ) sname
+		FROM
+			gift g ,gift_exchange ge
+		WHERE
+			g.id = ge.gift_id
+		<if test="name != null and name != ''">
+			AND 
+				g.name LIKE CONCAT('%',#{name},'%')
+		</if>
+	</select>
+	
+	<!-- 扣除用户相应爱佑币 -->
+	<update id="updateCoin" parameterType="map">
+		UPDATE 
+			stuuser s 
+		SET 
+			s.coin = s.coin - #{totalCoin} 
+		WHERE 
+			s.id = #{userId}
+	</update>
+	
+	
+</mapper>

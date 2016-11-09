@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.PlacardRecord">
+
+	<resultMap type="com.bluemobi.pro.pojo.PlacardRecord" id="placardRecordResultMap">
+		<id column="id" property="id"/>
+		<result column="create_date" property="createDate"/>
+		<association property="user" column="user_id" select="findUserById" />
+	</resultMap>
+	
+	<resultMap type="com.bluemobi.pro.pojo.StuUser" id="stuUserResultMap">
+		<id column="id" property="id"/>
+		<result column="mobile" property="mobile"/>
+		<result column="nickname" property="nickname"/>
+		<result column="name" property="name"/>
+		<result column="sex" property="sex"/>
+		<result column="provinceId" property="provinceId"/>
+		<result column="cityId" property="cityId"/>
+		<result column="schoolId" property="schoolId"/>
+		<result column="collegeId" property="collegeId"/>
+		<result column="specialtyId" property="specialtyId"/>
+		<result column="startYear" property="startYear"/>
+	</resultMap>
+	
+	<!-- 翻页查询 -->
+	<select id="findPage" parameterType="map" resultMap="placardRecordResultMap">
+		select
+			id,
+			user_id,
+			create_date
+		from
+			placard_record
+		where 
+			placard_id = #{placardId}
+	</select>
+	
+	<!-- 根据ID查询用户 -->
+	<select id="findUserById" resultMap="stuUserResultMap" parameterType="java.lang.Integer">
+			SELECT 
+				  a.id,
+			      a.mobile,
+			      a.nickname,
+			      a.`name`,
+			      a.sex,
+			      a.provinceId,
+			      a.cityId,
+			      a.schoolId,
+			      a.collegeId,
+			      a.specialtyId,
+			      a.startYear
+		     from 
+		     	  stuuser a 
+		     where 
+		     	a.id = #{id}
+	</select>
+	
+	<!-- 新增阅读记录  -->
+	<insert id="insertPlacardRecord" parameterType="map">
+		insert into 
+			placard_record
+		(
+			user_id,
+			placard_id,
+			create_date
+		)
+		values
+		(
+			#{userId},
+			#{placardId},
+			NOW()
+		)
+	</insert>
+</mapper> 

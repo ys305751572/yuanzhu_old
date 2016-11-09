@@ -1,0 +1,122 @@
+<jsp:root xmlns:jsp="http://java.sun.com/JSP/Page"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:blue="/functions/blue"
+	xmlns:spring="http://www.springframework.org/tags" version="2.0">
+	<jsp:directive.tag body-content="empty" pageEncoding="utf-8" />
+	<jsp:output omit-xml-declaration="yes" />
+	<![CDATA[
+		<style type="text/css">
+			.ztree li a.level0 {height: 30px; text-align: center; display:block; margin-bottom:0px; padding-top:10px;}
+			.ztree li a.level0 span {display: block; color: #358AC6; padding-top:2px; font-size:15px; font-weight: bold;word-spacing: 2px;}
+			.ztree li a.curSelectedNode {background-color: #358AC6;}
+			.ztree li a.curSelectedNode span{color: white;}
+			.ztree li a.level0 span.button {float:right; margin-left: 10px; visibility: visible;display:none;}
+			.ztree li span.button.switch.level0 {display:none;}
+		</style>
+	]]>
+
+	<![CDATA[
+		<script type="text/javascript">
+			var setting = {
+				view: {
+					showLine: true,
+					selectedMulti: false,
+					dblClickExpand: false
+				},
+				data: {
+					simpleData: {
+						enable: true
+					}
+				},
+				callback: {
+					onClick: menuClick
+				}
+			};
+			var zNodes =[
+	]]>
+	<c:set value="${sysuser.userType}" var="fid"></c:set>
+		<c:if test="${fid eq 2}">
+			{id:'01', pId:'0', name:'用户管理',url:'${ pageContext.request.contextPath}/stuuserlist', target:'mainframe'},
+			{id:'02', pId:'0', name:'兴趣管理',url:'${ pageContext.request.contextPath}/interestlist', target:'mainframe'},
+			{id:'03', pId:'0', name:'群类型管理',url:'${ pageContext.request.contextPath}/grouptypelist', target:'mainframe'},
+			{id:'04', pId:'0', name:'活动类型管理',url:'${ pageContext.request.contextPath}/acttypelist', target:'mainframe'},
+			{id:'05', pId:'0', name:'群管理',url:'${ pageContext.request.contextPath}/grouplist', target:'mainframe'},
+			{id:'06', pId:'0', name:'充值记录',url:'${ pageContext.request.contextPath}/coinloglist', target:'mainframe'},	
+			{id:'07', pId:'0', name:'活动管理',url:'${ pageContext.request.contextPath}/activitieslist', target:'mainframe'},
+			{id:'07', pId:'0', name:'秀吧管理',url:'${ pageContext.request.contextPath}/xiu/listPage', target:'mainframe'},
+			{id:'07', pId:'0', name:'帖子管理',url:'${ pageContext.request.contextPath}/xiu/post/listPage', target:'mainframe'},
+			{id:'13', pId:'0', name:'礼品管理',url:'${ pageContext.request.contextPath}/listGitfPage', target:'mainframe'},
+			{id:'13', pId:'0', name:'订单管理',url:'${ pageContext.request.contextPath}/listOrderPage', target:'mainframe'},
+			{id:'13', pId:'0', name:'任务管理',url:'${ pageContext.request.contextPath}/totasklist', target:'mainframe'},
+			{id:'08', pId:'0', name:'公告管理',url:'${ pageContext.request.contextPath}/placardlist', target:'mainframe'},
+			{id:'09', pId:'0', name:'反馈管理',url:'${ pageContext.request.contextPath}/backlist', target:'mainframe'},
+			{id:'10', pId:'0', name:'关键词管理',url:'${ pageContext.request.contextPath}/filtrationlist', target:'mainframe'},
+			{id:'11', pId:'0', name:'举报管理',url:'${ pageContext.request.contextPath}/reportlist', target:'mainframe'},
+			{id:'12', pId:'0', name:'系统设置',url:'${ pageContext.request.contextPath}/userlist', target:'mainframe'},
+			{id:'12', pId:'0', name:'配置管理',url:'${ pageContext.request.contextPath}/config/detailPage', target:'mainframe'},
+		</c:if>
+		<c:if test="${fid eq 1 }">
+			{id:'01', pId:'0', name:'用户管理',url:'${ pageContext.request.contextPath}/stuuserlist', target:'mainframe'},
+			{id:'02', pId:'0', name:'兴趣管理',url:'${ pageContext.request.contextPath}/interestlist', target:'mainframe'},
+			{id:'03', pId:'0', name:'群类型管理',url:'${ pageContext.request.contextPath}/grouptypelist', target:'mainframe'},
+			{id:'04', pId:'0', name:'活动类型管理',url:'${ pageContext.request.contextPath}/acttypelist', target:'mainframe'},
+			{id:'05', pId:'0', name:'群管理',url:'${ pageContext.request.contextPath}/grouplist', target:'mainframe'},
+			{id:'06', pId:'0', name:'充值记录',url:'${ pageContext.request.contextPath}/coinloglist', target:'mainframe'},	
+			{id:'07', pId:'0', name:'活动管理',url:'${ pageContext.request.contextPath}/activitieslist', target:'mainframe'},
+			{id:'07', pId:'0', name:'秀吧管理',url:'${ pageContext.request.contextPath}/xiu/listPage', target:'mainframe'},
+			{id:'07', pId:'0', name:'帖子管理',url:'${ pageContext.request.contextPath}/xiu/post/listPage', target:'mainframe'},
+			{id:'13', pId:'0', name:'礼品管理',url:'${ pageContext.request.contextPath}/listGitfPage', target:'mainframe'},
+			{id:'13', pId:'0', name:'订单管理',url:'${ pageContext.request.contextPath}/listOrderPage', target:'mainframe'},
+			{id:'13', pId:'0', name:'任务管理',url:'${ pageContext.request.contextPath}/totasklist', target:'mainframe'},
+			{id:'08', pId:'0', name:'公告管理',url:'${ pageContext.request.contextPath}/placardlist', target:'mainframe'},
+			{id:'09', pId:'0', name:'反馈管理',url:'${ pageContext.request.contextPath}/backlist', target:'mainframe'},
+			{id:'10', pId:'0', name:'关键词管理',url:'${ pageContext.request.contextPath}/filtrationlist', target:'mainframe'},
+			{id:'11', pId:'0', name:'举报管理',url:'${ pageContext.request.contextPath}/reportlist', target:'mainframe'},
+		</c:if>
+		<c:if test="${fid eq 3 }">
+			{id:'01', pId:'0', name:'任务管理',url:'${ pageContext.request.contextPath}/totasklist', target:'mainframe'},
+		</c:if>
+		<c:if test="${fid eq 4 }">
+			{id:'01', pId:'0', name:'公告管理',url:'${ pageContext.request.contextPath}/placardlist', target:'mainframe'},
+		</c:if>
+		<c:if test="${fid eq 5 }">
+			{id:'01', pId:'0', name:'活动管理',url:'${ pageContext.request.contextPath}/activitieslist', target:'mainframe'},
+		</c:if>
+	<![CDATA[
+			];
+			
+			function menuClick(e, treeId, treeNode) {
+			if(treeNode.id != 01){
+				$("#menu_tree_1_a").removeClass("curSelectedNode");
+			}
+				if(treeNode.level === 0){
+					$.fn.zTree.getZTreeObj("menu_tree").expandNode(treeNode);
+				}
+			}
+			
+			$(function(){
+				if(zNodes.length > 0){
+					$.fn.zTree.init($("#menu_tree"), setting, zNodes);
+				}
+				$("#mainframe").attr('src',zNodes[0].url);
+				$("#menu_tree_1_a").addClass("curSelectedNode");
+			});
+			
+			function menu_expand(){
+				var menuTree = $.fn.zTree.getZTreeObj("menu_tree");
+				if(menuTree != null){
+					menuTree.expandAll(true);
+				}
+			}
+			
+			function menu_collapse(){
+				var menuTree = $.fn.zTree.getZTreeObj("menu_tree");
+				if(menuTree != null){
+					menuTree.expandAll(false);
+				}
+			}
+		</script>
+	]]>
+	<ul id="menu_tree" class="ztree"></ul>
+</jsp:root>

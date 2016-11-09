@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Province">
+
+	<resultMap id="provinceResultMap" type="Province">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="brevitycode" column="brevitycode" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="provinceResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="provinceResultMap"></resultMap>
+
+	<!-- 新增省份信息 -->
+	<insert id="insert" parameterType="Province">
+		insert into province (
+		id,
+		name,
+		brevitycode
+		)values (
+		#{id},
+		#{name},
+		#{brevitycode}
+		)
+	</insert>
+
+<!-- 更新省份信息 -->
+	<update id="update" parameterType="map">
+		update province set
+		id = id
+		<if test="name != null and name != ''">
+			, name=#{name}
+		</if>
+		<if test="brevitycode != null and brevitycode != ''">
+			, brevitycode=#{brevitycode}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+<!-- 根据ID删除省份信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		province
+		where
+		id=#{id}
+	</delete>
+
+<!-- 根据条件获取省份信息 -->
+	<select id="get" parameterType="map" resultMap="provinceResultMap">
+		select
+		id,
+		name,
+		brevitycode
+		from province
+		<where>
+		1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="brevitycode != null">
+				and brevitycode=#{brevitycode}
+			</if>
+		</where>
+	</select>
+
+<!-- 根据ID获取指定省份信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name,
+		brevitycode
+		from province
+		where
+		id=#{id}
+	</select>
+
+<!-- 获取省份信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name,
+		brevitycode
+		from province
+		<where>
+		1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="brevitycode != null">
+				and brevitycode=#{brevitycode}
+			</if>
+		</where>
+	</select>
+
+<!-- 获取省份信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		name,
+		brevitycode
+		from province
+		<where>
+		1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="brevitycode != null">
+				and brevitycode=#{brevitycode}
+			</if>
+		</where>
+	</select>
+</mapper> 

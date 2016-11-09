@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Interest">
+
+	<resultMap id="interestResultMap" type="Interest">
+		<id property="id" column="id" />
+		<result property="interest" column="interest" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="interestResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="interestResultMap"></resultMap>
+
+	<!-- 新增兴趣信息 -->
+	<insert id="insert" parameterType="Interest">
+		insert into interests (
+		id,
+		interest
+		)values (
+		#{id},
+		#{interest}
+		)
+	</insert>
+
+	<!-- 更新兴趣信息 -->
+	<update id="update" parameterType="map">
+		update interests set
+		id = id
+		<if test="interest != null and interest != ''">
+			, interest=#{interest}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除兴趣信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		interests
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据条件获取兴趣信息 -->
+	<select id="get" parameterType="map" resultMap="interestResultMap">
+		select
+		id,
+		interest
+		from interests
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="interest != null">
+				and interest=#{interest}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取指定兴趣信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		interest
+		from interests
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取兴趣信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		interest
+		from interests
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="interest != null">
+				and interest=#{interest}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取兴趣信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		interest
+		from interests
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="interest != null">
+				and interest=#{interest}
+			</if>
+		</where>
+	</select>
+</mapper> 

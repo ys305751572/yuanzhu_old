@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.sys.dao.SysuserDao">
+
+	<resultMap id="sysuserResultMap" type="Sysuser">
+		<id property="id" column="id" />
+		<result property="name" column="userName" />
+		<result property="password" column="password" />
+		<result property="userType" column="userType"/>
+		<result property="provinceId" column="provinceId"/>
+		<result property="cityId" column="cityId"/>
+		<result property="schoolId" column="schoolId"/>
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="sysuserResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="sysuserResultMap"></resultMap>
+
+	<insert id="insert" parameterType="Sysuser">
+		insert into sysuser (
+		id,
+		name,
+		password
+		)values (
+		#{id},
+		#{name},
+		#{password}
+		)
+	</insert>
+
+	<update id="update" parameterType="map">
+		update sysuser set
+		<if test="id != null and id != ''">
+			id=#{id}
+		</if>
+		<if test="name != null and name != ''">
+			, name=#{name}
+		</if>
+		<if test="password != null and password != ''">
+			, password=#{password}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<delete id="delete" parameterType="map">
+		delete from
+		sysuser
+		where
+		id=#{id}
+	</delete>
+
+	<select id="get" parameterType="map" resultMap="sysuserResultMap">
+		select
+		id,
+		name,
+		password
+		from sysuser
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="password != null">
+				and password=#{password}
+			</if>
+		</where>
+	</select>
+
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name,
+		password
+		from sysuser
+		where
+		id=#{id}
+	</select>
+
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name,
+		password
+		from sysuser
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="password != null">
+				and password=#{password}
+			</if>
+		</where>
+	</select>
+
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		name,
+		password
+		from sysuser
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="password != null">
+				and password=#{password}
+			</if>
+		</where>
+	</select>
+
+	<select id="getLogin" parameterType="map" resultMap="sysuserResultMap">
+		select
+		id,
+		userName,
+		realName,
+		password,
+		mobile,
+		userType,
+		provinceId,
+		cityId,
+		schoolId
+		from users
+		where
+		userName=#{name}
+		and password=#{password}
+	</select>
+</mapper> 

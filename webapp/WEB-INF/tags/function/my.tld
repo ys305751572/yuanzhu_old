@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+	version="2.0">
+	<!--指定该标签库实现的版本，这是一个作为标识的内部版本号，对程序没有太大的用 -->
+	<tlib-version>1.0</tlib-version>
+
+	<!--该标签库的默认短名，该名称通常也没有太大的用处  。 -->
+	<short-name>my</short-name>
+	<!--这个属性非常重要，它指定该标签库的URI，相当于指定该标签库的唯一标识。如上斜体字代码所示，JSP页面中使用标签库时就是根据该URI属性来定位标签库的 -->
+	<!-- <uri>http://www.xcf.com/titels/stringleftfunctions</uri> -->
+
+	<function>
+		<name>stringLeftFunctions</name><!--EL页面调用名字 如页面上使用${my:hasPermission(x,y,z)} -->
+		<function-class>com.bluemobi.www.utils.StringLeftFunctions</function-class><!--指定标签的处理类，指定了标签由哪个Java类来处理。 -->
+		<function-signature>java.lang.String StringLeft(java.lang.String,int)</function-signature><!--指定EL页面调用名字中实际调用的方法.指定处理类的实际方法.参数和回调函数要写完整路径 -->
+	</function>
+	
+	<function>
+		<name>uriencode</name><!--EL页面调用名字 如页面上使用${my:hasPermission(x,y,z)} -->
+		<function-class>com.bluemobi.www.utils.StringLeftFunctions</function-class><!--指定标签的处理类，指定了标签由哪个Java类来处理。 -->
+		<function-signature>java.lang.String UriEncode(java.lang.String)</function-signature><!--指定EL页面调用名字中实际调用的方法.指定处理类的实际方法.参数和回调函数要写完整路径 -->
+	</function>
+</taglib> 

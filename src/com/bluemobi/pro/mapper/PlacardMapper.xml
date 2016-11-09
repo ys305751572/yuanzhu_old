@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Placard">
+
+	<resultMap id="placardResultMap" type="Placard">
+		<id property="id" column="id" />
+		<result property="content" column="content" />
+		<result property="title" column="title" />
+		<result property="createTime" column="createTime" />
+		<result property="stuUserId" column="stuUserId" />
+		<result property="provinceId" column="provinceId" />
+		<result property="cityId" column="cityId" />
+		<result property="schoolId" column="schoolId" />
+		<result property="picture" column="picture" />
+		<result property="collegeId" column="collegeId"/>
+		<result property="userType" column="userType"/>
+		<result property="linkUrl" column="linkUrl"/>
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="placardResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="placardResultMap"></resultMap>
+
+	<!-- 新增公告 -->
+	<insert id="insert" parameterType="Placard">
+		INSERT INTO placard 
+		<set>
+			<if test="content != null">
+				content = #{content},
+			</if>
+			<if test="createTime != null">
+				createTime = #{createTime},
+			</if>
+			<if test="stuUserId != null">
+				stuUserId = #{stuUserId},
+			</if>
+			<if test="provinceId != null">
+				provinceId = #{provinceId},
+			</if>
+			<if test="cityId != null">
+				cityId = #{cityId},
+			</if>
+			<if test="schoolId != null">
+				schoolId = #{schoolId},
+			</if>
+			<if test="collegeId != null">
+				collegeId = #{collegeId},
+			</if>
+			<if test="picture != null">
+				picture = #{picture},
+			</if>
+			<if test="title != null">
+				title = #{title},
+			</if>
+			<if test="type != null">
+				type = #{type},
+			</if>
+			<if test="linkUrl != null">
+				linkUrl = #{linkUrl}
+			</if>
+		</set>
+	</insert>
+
+	<!-- 更新公告 -->
+	<update id="update" parameterType="map">
+		update placard set
+		picture=#{picture}
+		<if test="content != null and content != ''">
+			,title=#{title}
+		</if>
+		<if test="content != null and content != ''">
+			,content=#{content}
+		</if>
+		<if test="createTime != null and createTime != ''">
+			,createTime=#{createTime}
+		</if>
+		<if test="stuUserId != null and stuUserId != ''">
+			,stuUserId=#{stuUserId}
+		</if>
+		<if test="provinceId != null and provinceId != ''">
+			,provinceId=#{provinceId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			,cityId=#{cityId}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			,schoolId=#{schoolId}
+		</if>
+		<if test="collegeid != null and collegeid != ''">
+			,collegeId = #{collegeid}
+		</if>
+		<if test="type != null and type != ''">
+			,type = #{type}
+		</if>
+		<if test="linkUrl != null and linkUrl != ''">
+			,linkUrl = #{linkUrl}
+		</if>
+		where
+		id=#{id}
+	</update>
+	
+	<!-- 删除公告 -->
+	<delete id="delete" parameterType="map">
+		delete from placard
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 根据ID查询公告 -->
+	<select id="get" parameterType="map" resultMap="placardResultMap">
+	select
+	id,
+	content,
+	IFNULL(title,"") title,
+	left(FROM_UNIXTIME(left(createTime,10)),19) as time,
+	stuUserId,
+	provinceId,
+	cityId,
+	schoolId,
+	collegeId,
+	type,
+	picture,
+	linkUrl
+	from
+	placard
+	where
+	id=#{id}
+	</select>
+	
+	<!-- 根据ID查询公告 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		p.id,
+		p.content,
+		IFNULL(title,"") title,
+		CAST(left(FROM_UNIXTIME(left(p.createTime,10),'%Y-%m-%d'),19) AS CHAR) as time,
+		(select userName from users u where u.id = p.stuUserId)
+		as
+		person,
+		(select name from province pr where pr.id = p.provinceId) as
+		province,
+		(select name from city ct where ct.id = p.cityId) as city,
+		(select
+		proName from
+		scs s where id = schoolId and `level` = 1 and s.provinceId = p.provinceId and s.cityId = p.cityId) as school,
+		p.picture,
+		p.linkUrl
+		from
+		placard p
+		where
+		p.id=#{id}
+	</select>
+
+	<!-- 查询公告详细信息 -->
+	<select id="queryDetail" parameterType="string" resultType="com.bluemobi.pro.pojo.Placard">
+		select
+		id,
+		content,
+		createTime,
+		picture,
+		linkUrl
+		from
+		placard
+		where
+		id=#{id}
+	</select>
+	
+	<!-- 根据查询条件查询公告 -->
+	<select id="findAll" parameterType="map" resultMap="findResultMap">
+		select
+		p.id,
+		p.content,
+		CAST(left(FROM_UNIXTIME(left(p.createTime,10),'%Y-%m-%d'),19) AS CHAR) as time,
+		u.userName,
+		p.provinceId,
+		p.cityId,
+		p.schoolId,
+		p.picture,
+		p.type,
+		p.title,
+		u.userType,
+		p.linkUrl
+		from placard as p,users u
+		<where> 
+			1=1
+			<if test="userType != 2">
+				and p.schoolId = #{schoolId} and p.cityId = #{cityId} and p.provinceId = #{provinceId}
+			</if>
+			and u.id = p.stuUserId
+			<if test="id != null and id != ''">
+				and p.id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and p.content=#{content}
+			</if>
+			<if test="createTime != null and createTime != ''">
+				and left(FROM_UNIXTIME(left(p.createTime,10)),10)=#{createTime}
+			</if>
+			<if test="stuUserId != null and stuUserId != ''">
+				and stuUserId=#{stuUserId}
+			</if>
+			<if test="stuUser != null and stuUser != ''">
+				and u.userName like CONCAT('%',#{stuUser},'%')
+			</if>
+			<if test="provinceId != null and provinceId != ''">
+				and p.provinceId=#{provinceId}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and p.cityId=#{cityId}
+			</if>
+			<if test="schoolId != null and schoolId != ''">
+				and p.schoolId=#{schoolId}
+			</if>
+			<if test="collegeId != null and collegeId != ''">
+				and p.collegeId = #{collegeId}
+			</if>
+			<if test="picture != null and picture != ''">
+				and p.picture=#{picture}
+			</if>
+		</where>
+		order by createTime desc
+	</select>
+	<!-- 根据查询条件查询公告 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		p.id,
+		p.content,
+		CAST(left(FROM_UNIXTIME(left(p.createTime,10),'%Y-%m-%d'),19) AS CHAR) as time,
+		p.provinceId,
+		p.cityId,
+		p.schoolId,
+		IFNULL(p.picture,"") picture,
+		p.type,
+		p.title,
+		p.linkUrl
+		from placard as p
+		<where> 
+			1=1
+			and
+			 (p.`type`  = 1 
+			 	<if test="userSchoolId != null and userSchoolId != ''">
+			 		OR p.schoolId = #{userSchoolId}
+			 	</if>
+			 )
+			<if test="id != null and id != ''">
+				and p.id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and p.content=#{content}
+			</if>
+			<if test="createTime != null and createTime != ''">
+				and left(FROM_UNIXTIME(left(p.createTime,10)),10)=#{createTime}
+			</if>
+			<if test="stuUserId != null and stuUserId != ''">
+				and stuUserId=#{stuUserId}
+			</if>
+			<if test="stuUser != null and stuUser != ''">
+				and u.userName like CONCAT('%',#{stuUser},'%')
+			</if>
+			<if test="provinceId != null and provinceId != ''">
+				and p.provinceId=#{provinceId}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and p.cityId=#{cityId}
+			</if>
+			<if test="schoolId != null and schoolId != ''">
+				and p.schoolId=#{schoolId}
+			</if>
+			<if test="collegeId != null and collegeId != ''">
+				and p.collegeId = #{collegeId}
+			</if>
+			<if test="picture != null and picture != ''">
+				and p.picture=#{picture}
+			</if>
+			<if test="searchName != null and searchName != ''">
+				and (p.`schoolId` IN 
+				  (SELECT 
+				    s.`id` 
+				  FROM
+				    scs s 
+				  WHERE s.proName LIKE CONCAT("%", #{searchName}, "%") 
+				    AND s.`level` = 1)
+				 OR
+				   p.`collegeId` IN 
+				   (SELECT 
+				    s.`id` 
+				  FROM
+				    scs s 
+				  WHERE s.proName LIKE CONCAT("%", #{searchName}, "%") 
+				    AND s.`level` = 2))
+				 OR
+				    p.title LIKE CONCAT("%",#{searchName},"%")
+			</if>
+		</where>
+		order by createTime desc
+	</select>
+	
+	<!-- 查询城市 -->
+	<select id="findCity" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name,
+		brevitycode as code
+		from city
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="provinceId != null">
+				and provinceId=#{provinceId}
+			</if>
+		</where>
+		AND id>0
+	</select>
+	
+	<!-- 查询省份 -->
+	<select id="findProvince" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name
+		from province
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+		</where>
+		AND ID > 0
+	</select>
+	
+	<!-- 查询 学校-->
+	<select id="findScs" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		proName,
+		pid,
+		level,
+		provinceId,
+		cityId
+		from scs
+		<where>
+			1 = 1
+			<if test="id != null and id != ''">
+				and pid=#{id}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and cityId=#{cityId}
+			</if>
+			<if test="id != null and id != ''">
+				and level=2
+			</if>
+			<if test="id == null or id == ''">
+				and level=1
+			</if>
+		</where>
+	</select>
+</mapper> 

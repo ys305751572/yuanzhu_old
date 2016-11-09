@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Groupscale">
+
+	<resultMap id="groupscaleResultMap" type="Groupscale">
+		<id property="id" column="id" />
+		<result property="scale" column="scale" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="groupscaleResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="groupscaleResultMap"></resultMap>
+
+	<!-- 新增群规模信息 -->
+	<insert id="insert" parameterType="Groupscale">
+		insert into groupscale (
+		id,
+		scale
+		)values (
+		#{id},
+		#{scale}
+		)
+	</insert>
+
+	<!-- 更新群规模信息 -->
+	<update id="update" parameterType="map">
+		update groupscale set
+		1 = 1
+		<if test="id != null and id != ''">
+			, id=#{id}
+		</if>
+		<if test="scale != null and scale != ''">
+			, scale=#{scale}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除群规模信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		groupscale
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据条件获取群规模信息 -->
+	<select id="get" parameterType="map" resultMap="groupscaleResultMap">
+		select
+		id,
+		scale
+		from groupscale
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="scale != null">
+				and scale=#{scale}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取指定群规模信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		scale
+		from groupscale
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取群规模信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		scale
+		from groupscale
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="scale != null">
+				and scale=#{scale}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取群规模信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		scale
+		from groupscale
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="scale != null">
+				and scale=#{scale}
+			</if>
+		</where>
+	</select>
+</mapper> 

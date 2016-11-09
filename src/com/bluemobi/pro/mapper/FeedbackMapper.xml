@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Feedback">
+
+	<resultMap id="feedbackResultMap" type="Feedback">
+		<id property="id" column="id" />
+		<result property="content" column="content" />
+		<result property="backtime" column="backTime" />
+		<result property="stuUserid" column="stuUserId" />
+		<result property="status" column="status" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="feedbackResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="feedbackResultMap"></resultMap>
+
+	<!-- 更新反馈信息 -->
+	<update id="update" parameterType="map">
+		update feedback set
+		id = id
+		<if test="content != null and content != ''">
+			,content=#{content}
+		</if>
+		<if test="backTime != null and backTime != ''">
+			,backTime=#{backTime}
+		</if>
+		<if test="stuUserId != null and stuUserId != ''">
+			,stuUserId=#{stuUserId}
+		</if>
+		<if test="status != null and status != ''">
+			,status=#{status}
+		</if>
+		where
+		id=#{id}
+	</update>
+	
+	<!-- 根据ID删除反馈信息 -->
+	<delete id="delete" parameterType="map">
+		delete from feedback
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据ID获取反馈信息 -->
+	<select id="get" parameterType="map" resultMap="findResultMap">
+		select
+		f.id,
+		f.content,
+		left(FROM_UNIXTIME(left(f.backTime,10)),19) as backTime,
+		s.`name` as person,
+		f.`status`
+		from feedback as f,stuuser as s
+		where
+		f.stuUserId = s.id and f.id=#{id}
+	</select>
+
+	<!-- 根据条件获取反馈信息 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		f.id,
+		f.content,
+		CAST(left(FROM_UNIXTIME(left(f.backTime,10)),19) AS CHAR) as
+		backTime,
+		s.nickname as person,
+		f.`status`
+		from feedback as f,stuuser as s
+		<where>
+			s.id = f.stuUserId
+			<if test="id != null and id != ''">
+				and f.id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and f.content=#{content}
+			</if>
+			<if test="backTime != null and backTime != ''">
+				and
+				left(FROM_UNIXTIME(left(f.backTime,10)),10)=#{backTime}
+			</if>
+			<if test="stuUserId != null and stuUserId != ''">
+				and f.stuUserId=#{stuUserId}
+			</if>
+			<if test="stuUser != null and stuUser != ''">
+				and s.nickname like CONCAT('%',#{stuUser},'%')
+			</if>
+			<if test="status != null and status != ''">
+				and f.status=#{status}
+			</if>
+		</where>
+	</select>
+	
+	<insert id="saveFeedBack" parameterType="java.util.Map">
+		INSERT INTO feedback (content,backTime,stuUserId) VALUES (#{content},#{backTime},#{userId})
+	</insert>
+</mapper> 

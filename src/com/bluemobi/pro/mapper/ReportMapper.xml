@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Report">
+
+	<resultMap id="reportResultMap" type="Report">
+		<id property="id" column="id" />
+		<result property="content" column="content" />
+		<result property="userid" column="userId" />
+		<result property="createtime" column="createTime" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="reportResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="reportResultMap"></resultMap>
+
+	<!-- 新增举报信息 -->
+	<insert id="insert" parameterType="Report">
+		insert into report (
+		id,
+		content,
+		userId,
+		createTime
+		)values (
+		#{id},
+		#{content},
+		#{userId},
+		#{createTime}
+		)
+	</insert>
+
+	<!-- 更新举报信息 -->
+	<update id="update" parameterType="map">
+		update report set
+		id = id
+		<if test="content != null and content != ''">
+			, content=#{content}
+		</if>
+		<if test="userid != null and userid != ''">
+			, userId=#{userid}
+		</if>
+		<if test="createtime != null and createtime != ''">
+			, createTime=#{createtime}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除举报信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		report
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据条件获取指定举报信息 -->
+	<select id="get" parameterType="map" resultMap="reportResultMap">
+		select
+		id,
+		content,
+		userId,
+		createTime
+		from report
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and content=#{content}
+			</if>
+			<if test="userid != null and userid != ''">
+				and userId=#{userid}
+			</if>
+			<if test="createtime != null and createtime != ''">
+				and createTime=#{createtime}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取指定举报信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		content,
+		userId,
+		createTime
+		from report
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取举报信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		r.id,
+		r.content,
+		r.userId,
+		s.`name`,
+		CAST(left(FROM_UNIXTIME(left(r.createTime,10)),19) AS CHAR) as time
+		from report as
+		r,stuuser as s
+		<where>
+			s.id = r.userId
+			<if test="id != null and id != ''">
+				and r.id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and r.content like CONCAT('%',#{content},'%')
+			</if>
+			<if test="userid != null and userid != ''">
+				and r.userId=#{userid}
+			</if>
+			<if test="stuUser != null and stuUser != ''">
+				and s.`name` like CONCAT('%',#{stuUser},'%')
+			</if>
+			and unix_timestamp(left(FROM_UNIXTIME(left(r.createTime,10)),10))
+			between unix_timestamp(#{startDate}) and unix_timestamp(#{endDate})
+		</where>
+	</select>
+
+	<!-- 获取举报信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		content,
+		userId,
+		createTime
+		from report
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and content=#{content}
+			</if>
+			<if test="userid != null and userid != ''">
+				and userId=#{userid}
+			</if>
+			<if test="createtime != null and createtime != ''">
+				and createTime=#{createtime}
+			</if>
+		</where>
+	</select>
+</mapper> 

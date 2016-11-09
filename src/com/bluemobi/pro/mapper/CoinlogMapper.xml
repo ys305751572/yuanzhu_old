@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluemobi.pro.pojo.Coinlog">
+
+	<resultMap id="coinlogResultMap" type="Coinlog">
+		<id property="id" column="id" />
+		<result property="groupId" column="groupId" />
+		<result property="stuUserId" column="stuUserId" />
+		<result property="money" column="money" />
+		<result property="coin" column="coin" />
+		<result property="createTime" column="createTime" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="coinlogResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="coinlogResultMap"></resultMap>
+
+	<!-- 新增充值记录信息  yesong-->
+	<insert id="insertCoinLog" parameterType="map">
+		insert into coinlog (groupId,stuUserId,money,coin,createTime,orderid,orderName,status1,content)
+		values (#{groupId},#{stuUserId},#{money},#{coin},#{createTime},#{orderId},#{orderName},#{status1},#{content})
+	</insert>
+	
+	<!-- 删除充值记录 yesong -->
+	<delete id="deleteCoinLogByOrderIdAndOrderName" parameterType="map">
+		DELETE FROM coinlog WHERE orderid = #{orderId} AND orderName = #{orderName}
+	</delete>
+	
+	<!-- 更新充值记录状态  yesong -->
+	<update id="updateCoinLogStatus" parameterType="map">
+		UPDATE coinlog c SET c.status1 = 1 WHERE orderid = #{orderId} AND orderName = #{orderName}
+	</update>
+	
+	<select id="getUserIdByOrderIdAndOrderName" parameterType="map" resultType="map">
+		SELECT stuUserId,status1 FROM coinlog WHERE orderid = #{orderId} AND orderName = #{orderName}
+	</select>
+	
+	<!-- 更新充值记录信息 -->
+	<update id="update" parameterType="map">
+		update coinlog set
+		id = id
+		<if test="groupId != null and groupId != ''">
+			, groupId=#{groupId}
+		</if>
+		<if test="stuUserId != null and stuUserId != ''">
+			, stuUserId=#{stuUserId}
+		</if>
+		<if test="coin != null and coin != ''">
+			, coin=#{coin}
+		</if>
+		<if test="money != null and money != ''">
+			, money=#{money}
+		</if>
+		<if test="createTime != null and createTime != ''">
+			, createTime=#{createTime}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除充值记录信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		coinlog
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据条件获取充值记录信息 -->
+	<select id="get" parameterType="map" resultMap="coinlogResultMap">
+		select
+		id,
+		groupId,
+		stuUserId,
+		money,
+		coin,
+		left(FROM_UNIXTIME(left(createTime,10)),19) as createTime
+		from coinlog
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="groupId != null">
+				and groupId=#{groupId}
+			</if>
+			<if test="stuUserId != null">
+				and stuUserId=#{stuUserId}
+			</if>
+			<if test="money != null and money != ''">
+				and money=#{money}
+			</if>
+			<if test="coin != null">
+				and coin=#{coin}
+			</if>
+			<if test="createTime != null">
+				and createTime=#{createTime}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取指定充值记录信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		groupId,
+		stuUserId,
+		money,
+		coin,
+		left(FROM_UNIXTIME(left(createTime,10)),19) as createTime
+		from coinlog
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取充值记录列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		c.id,
+		(select mobile from stuuser where id = c.stuUserId) as
+		account,
+		(select `name` from stuuser where id = c.stuUserId) as
+		username,
+		c.money,
+		c.coin,
+		CAST(LEFT(FROM_UNIXTIME(LEFT(createTime,10)),19) AS CHAR) AS time
+		from coinlog as
+		c,stuuser as s
+		<where>
+			c.stuUserId = s.id
+			<if test="stuUser != null and stuUser != ''">
+				and s.`name` like  CONCAT('%',#{stuUser},'%')
+			</if>
+			<if test="mobile != null and mobile != ''">
+				and s.mobile like  CONCAT('%',#{mobile},'%')
+			</if>
+			and unix_timestamp(left(FROM_UNIXTIME(left(createTime,10)),10))
+			between unix_timestamp(#{startDate}) and unix_timestamp(#{endDate})
+			ORDER BY c.id DESC
+		</where>
+		
+	</select>
+
+	<!-- 获取充值记录列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		groupId,
+		stuUserId,
+		money,
+		coin,
+		left(FROM_UNIXTIME(left(createTime,10)),19) as createTime
+		from coinlog
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="groupId != null">
+				and groupId=#{groupId}
+			</if>
+			<if test="stuUserId != null">
+				and stuUserId=#{stuUserId}
+			</if>
+			<if test="money != null and money != ''">
+				and money=#{money}
+			</if>
+			<if test="coin != null">
+				and coin=#{coin}
+			</if>
+			<if test="createTime != null">
+				and createTime=#{createTime}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 获取充值记录总额 -->
+	<select id="getAllMoney" resultType="double">
+		SELECT SUM(money) FROM coinlog
+	</select>
+</mapper> 

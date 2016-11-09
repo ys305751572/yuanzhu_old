@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bluemobi.pro.pojo.Post">
+
+	<resultMap id="postResultMap" type="com.bluemobi.pro.pojo.Post">
+		<id column="id" property="id" />
+		<result column="title" property="title" />
+		<result column="content" property="content" />
+		<result column="user_id" property="userId" />
+		<result column="post_bar_id" property="postBarId" />
+		<result column="fcount" property="fcount" />
+		<result column="ccount" property="ccount" />
+		<result column="user_name" property="userName" />
+		<result column="user_head" property="userHead" />
+		<result column="ispraise" property="ispraise" />
+		<result column="create_date" property="createDate" />
+		<result column="is_list" property="isList" />
+		<result column="is_top" property="isTop" />
+		<result column="group_id" property="groupId" />
+		<result column="post_bar_name" property="postBarName" />
+		<result column="linkUrl" property="linkUrl"/>
+		<collection property="picList" select="findPostImageByPostId"
+			ofType="com.bluemobi.pro.pojo.PostImage" column="{post_id2 = id}">
+		</collection>
+	</resultMap>
+
+	<resultMap type="com.bluemobi.pro.pojo.PostImage" id="postImageResultMap">
+		<result column="url" property="url" />
+		<result column="small_image_url" property="smallImageUrl" />
+		<result column="post_id" property="postId" />
+		<result column="size" property="size" />
+		<result column="width" property="width" />
+		<result column="height" property="height" />
+	</resultMap>
+
+	<!-- 帖子列表 -->
+	<select id="listPage" parameterType="map" resultMap="postResultMap">
+		SELECT
+		t.id,
+		t.title,
+		t.content,
+		t.user_id,
+		t.linkUrl,
+		(SELECT u.nickname FROM stuuser u where u.id = t.user_id ) user_name,
+		(SELECT u.head FROM stuuser u WHERE u.id = t.user_id) user_head,
+		DATE_FORMAT(t.create_date,'%Y-%m-%d %H:%i:%s') create_date,
+		(SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id ) fcount,
+		CASE
+		WHEN
+		(SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id and p.user_id =
+		#{userId} ) &gt; 0
+		THEN
+		1
+		WHEN
+		( SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id and
+		p.user_id = #{userId} ) &lt;= 0
+		THEN
+		0
+		END ispraise
+		FROM
+			post t
+		WHERE
+		1 = 1
+		AND t.is_list = 1
+		<if test="postBarId != null and postBarId != ''">
+			AND t.post_bar_id = #{postBarId}
+		</if>
+		<if test="searchName != null and searchName != ''">
+			AND t.title LIKE CONCAT("%",#{searchName},"%") or t.content LIKE CONCAT("%",#{searchName},"%")
+		</if>
+		<if test="type == 0">
+			ORDER BY t.is_top DESC,t.create_date DESC
+		</if>
+		<if test="type == 1">
+			ORDER BY is_top DESC,fcount DESC
+		</if>
+	</select>
+
+	<select id="listBanner" resultMap="postResultMap">
+		SELECT
+			*
+		FROM
+			(SELECT
+			t.*,
+			pb.`index`
+			FROM
+			post t
+			LEFT JOIN post_bar pb
+			ON t.`post_bar_id` = pb.`id`
+			WHERE t.is_list = 1 and pb.is_list = 1
+			ORDER BY pb.`index` ASC,t.is_top DESC,
+			t.`create_date` DESC)
+		AS 
+			a
+		GROUP BY 
+			a.post_bar_id ORDER BY a.index limit 5
+	</select>
+
+	<select id="findPostImageByPostId" parameterType="map"
+		resultMap="postImageResultMap">
+		SELECT
+		IFNULL(t.url,"") url,
+		IFNULL(t.small_image_url,"") small_image_url,
+		t.post_id,
+		t.size,
+		t.width,
+		t.height
+		FROM
+		post_image t
+		WHERE
+		t.post_id = #{post_id2}
+	</select>
+
+	<!-- 新增帖子 -->
+	<insert id="insertPost" parameterType="map" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO
+		post
+		(
+		title,
+		content,
+		user_id,
+		group_id,
+		post_bar_id,
+		linkUrl,
+		create_date
+		)
+		VALUES
+		(
+		#{title},
+		#{content},
+		#{userId},
+		#{groupId},
+		#{postBarId},
+		#{linkUrl},
+		NOW()
+		)
+	</insert>
+
+	<!-- 保存帖子图片 -->
+	<insert id="insertPostPic" parameterType="map">
+		INSERT INTO
+		post_image
+		(
+		url,
+		small_image_url,
+		post_id,
+		width,
+		height
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+			#{item.path},
+			#{item.small_image_url},
+			#{item.postId},
+			#{item.width},
+			#{item.height}
+			)
+		</foreach>
+
+
+
+	</insert>
+
+	<!-- 帖子详情 -->
+	<select id="postDetail" parameterType="map" resultMap="postResultMap">
+		SELECT
+		t.id,
+		t.title,
+		t.content,
+		t.user_id,
+		t.group_id,
+		t.linkUrl,
+		(SELECT u.nickname FROM stuuser u where u.id = t.user_id ) user_name,
+		(SELECT u.head FROM stuuser u WHERE u.id = t.user_id) user_head,
+		DATE_FORMAT(t.create_date,'%Y-%m-%d %H:%i:%s') create_date,
+		(SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id) fcount,
+		(SELECT COUNT(*) FROM post_comment p where p.post_id = t.id) ccount,
+
+		CASE
+		WHEN
+		( SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id and
+		p.user_id = #{userId}) &gt; 0
+		THEN
+		1
+		WHEN
+		( SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id and
+		p.user_id = #{userId} ) &lt;= 0
+		THEN
+		0
+		END ispraise
+
+		FROM
+		post t
+		WHERE
+		t.id = #{id}
+	</select>
+
+	<!-- 新增点赞记录 -->
+	<insert id="insertPraise" parameterType="map">
+		INSERT INTO
+		post_praise
+		(
+		post_id,
+		user_id
+		)
+		VALUES
+		(
+		#{id},
+		#{userId}
+		)
+	</insert>
+
+	<!-- 删除点赞记录 -->
+	<delete id="delPraise" parameterType="map">
+		DELETE
+		FROM
+		post_praise
+		WHERE
+		user_id = #{userId}
+		AND
+		post_id = #{id}
+	</delete>
+	<!-- /////////////////////////////////////////// 后台管理 //////////////////////////////////////////////////// -->
+
+	<!-- 帖子查询 -->
+	<select id="findAllPost" parameterType="map" resultMap="postResultMap">
+		SELECT
+		t.id,
+		t.title,
+		t.content,
+		t.user_id,
+		(SELECT u.nickname FROM stuuser u where u.id = t.user_id ) user_name,
+		(SELECT u.head FROM stuuser u WHERE u.id = t.user_id) user_head,
+		DATE_FORMAT(t.create_date,'%Y-%m-%d %H:%i:%s') create_date,
+		(SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id) fcount,
+		(SELECT pb.name FROM post_bar pb WHERE pb.id = t.post_bar_id) post_bar_name,
+		is_list,
+		is_top
+		FROM
+		post t
+		WHERE
+		1 = 1
+		<if test="postBarId != null and postBarId != ''">
+			AND
+			t.post_bar_id = #{postBarId}
+		</if>
+		<if test="title != null and title != ''">
+			AND
+			t.title LIKE CONCAT('%', #{title}, '%')
+		</if>
+		ORDER BY t.id DESC
+	</select>
+
+	<!-- 根据帖子ID查询帖子详细信息 -->
+	<select id="findByPostId" parameterType="map" resultMap="postResultMap">
+		SELECT
+		t.id,
+		t.title,
+		t.content,
+		t.user_id,
+		t.linkUrl,
+		(SELECT u.name FROM stuuser u where u.id = t.user_id ) user_name,
+		(SELECT u.head FROM stuuser u WHERE u.id = t.user_id) user_head,
+		DATE_FORMAT(t.create_date,'%Y-%m-%d %H:%i:%s') create_date,
+		(SELECT COUNT(*) FROM post_praise p WHERE p.post_id = t.id) fcount
+		FROM
+		post t
+		WHERE
+		t.id = #{id}
+	</select>
+
+	<!-- 更新帖子 -->
+	<update id="update" parameterType="com.bluemobi.pro.pojo.Post">
+		UPDATE
+		post
+		<set>
+			<if test="isList != null and isList != ''">
+				is_list = #{isList},
+			</if>
+			<if test="isTop != null and isList != ''">
+				is_top = #{isTop},
+			</if>
+		</set>
+		WHERE
+		1=1
+		AND
+		id = #{id}
+	</update>
+</mapper>

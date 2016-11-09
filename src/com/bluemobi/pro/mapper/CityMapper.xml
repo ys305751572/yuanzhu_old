@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.City">
+
+	<resultMap id="cityResultMap" type="City">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="provinceid" column="provinceId" />
+		<result property="brevitycode" column="brevitycode" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="cityResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="cityResultMap"></resultMap>
+
+	<!-- 新增城市信息 -->
+	<insert id="insert" parameterType="City">
+		insert into city (
+		id,
+		name,
+		provinceId,
+		brevitycode
+		)values (
+		#{id},
+		#{name},
+		#{provinceid},
+		#{brevitycode}
+		)
+	</insert>
+
+	<!-- 更新城市信息 -->
+	<update id="update" parameterType="map">
+		update city set
+		id = id
+		<if test="name != null and name != ''">
+			, name=#{name}
+		</if>
+		<if test="provinceid != null and provinceid != ''">
+			, provinceId=#{provinceid}
+		</if>
+		<if test="brevitycode != null and brevitycode != ''">
+			, brevitycode=#{brevitycode}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除城市信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		city
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据条件获取城市信息 -->
+	<select id="get" parameterType="map" resultMap="cityResultMap">
+		select
+		id,
+		name,
+		provinceId,
+		brevitycode
+		from city
+		<where>
+			1 =
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="provinceid != null">
+				and provinceId=#{provinceid}
+			</if>
+			<if test="brevitycode != null">
+				and brevitycode=#{brevitycode}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取指定城市信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name,
+		provinceId,
+		brevitycode
+		from city
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取城市信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name,
+		provinceId,
+		brevitycode
+		from city
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="provinceid != null">
+				and provinceId=#{provinceid}
+			</if>
+			<if test="brevitycode != null">
+				and brevitycode=#{brevitycode}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取城市信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		name,
+		provinceId,
+		brevitycode
+		from city
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="name != null">
+				and name=#{name}
+			</if>
+			<if test="provinceid != null">
+				and provinceId=#{provinceid}
+			</if>
+			<if test="brevitycode != null">
+				and brevitycode=#{brevitycode}
+			</if>
+		</where>
+	</select>
+</mapper> 

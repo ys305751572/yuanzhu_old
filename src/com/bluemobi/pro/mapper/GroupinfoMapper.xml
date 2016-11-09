@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Groupinfo">
+
+	<resultMap id="groupinfoResultMap" type="Groupinfo">
+		<id property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="scaleId" column="scaleId" />
+		<result property="groupType" column="groupType" />
+		<result property="provinceId" column="provinceId" />
+		<result property="cityId" column="cityId" />
+		<result property="schoolId" column="schoolId" />
+		<result property="stuUserId" column="stuUserId" />
+		<result property="notice" column="notice" />
+		<result property="message" column="message" />
+		<result property="head" column="head" />
+		<result property="status" column="status" />
+		<result property="coin" column="coin" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="groupinfoResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="groupinfoResultMap"></resultMap>
+
+	<!-- 新增群信息 -->
+	<insert id="insert" parameterType="Groupinfo">
+		insert into groupinfo
+		set id = #{id}
+		<if test="name != null">
+			,name = #{name}
+		</if>
+		<if test="scaleId != null">
+			,scaleId = #{scaleId}
+		</if>
+		<if test="groupType != null">
+			,groupType = #{groupType}
+		</if>
+		<if test="provinceId != null">
+			,provinceId = #{provinceId}
+		</if>
+		<if test="cityId != null">
+			,cityId = #{cityId}
+		</if>
+		<if test="schoolId != null">
+			,schoolId = #{schoolId}
+		</if>
+		<if test="stuUserId != null">
+			,stuUserId = #{stuUserId}
+		</if>
+		<if test="notice != null">
+			,notice = #{notice}
+		</if>
+		<if test="message != null">
+			,message = #{message}
+		</if>
+		<if test="head != null">
+			,head = #{head}
+		</if>
+		,coin = 0
+		<if test="createTime != null">
+			,createTime = #{createTime}
+		</if>
+		<if test="qrCode != null">
+			,qrCode = #{qrCode}
+		</if>
+	</insert>
+
+	<!-- 更新群信息 -->
+	<update id="update" parameterType="map">
+		update groupinfo set
+		id = id
+		<if test="name != null and name != ''">
+			, name=#{name}
+		</if>
+		<if test="scaleId != null and scaleId != ''">
+			, scaleId=#{scaleId}
+		</if>
+		<if test="groupType != null and groupType != ''">
+			, groupType=#{groupType}
+		</if>
+		<if test="provinceId != null and provinceId != ''">
+			, provinceId=#{provinceId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			, cityId=#{cityId}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			, schoolId=#{schoolId}
+		</if>
+		<if test="stuUserId != null and stuUserId != ''">
+			, stuUserId=#{stuUserId}
+		</if>
+		<if test="notice != null and notice != ''">
+			, notice=#{notice}
+		</if>
+		<if test="noticeTime != null and noticeTime != ''">
+			, noticeTime=#{noticeTime}
+		</if>
+		<if test="message != null and message != ''">
+			, message=#{message}
+		</if>
+		<if test="head != null and head != ''">
+			, head=#{head}
+		</if>
+		<if test="status != null and status != ''">
+			, status=#{status}
+		</if>
+		<if test="coin != null and coin != ''">
+			, coin=#{coin}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除群信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		groupinfo
+		where
+		id=#{id}
+	</delete>
+	
+	<!-- 解散群时删除groupmember信息 -->
+	<delete id="deleteGroupmemberByGroupId" parameterType="map">
+		delete from
+		groupmember
+		where
+		groupId=#{groupId}
+	</delete>
+
+	<!-- 根据条件获取群信息 -->
+	<select id="get" parameterType="map" resultMap="groupinfoResultMap">
+		select
+		id,
+		name,
+		scaleId,
+		groupType,
+		provinceId,
+		cityId,
+		schoolId,
+		stuUserId,
+		notice,
+		noticeTime,
+		message,
+		head,
+		status,
+		coin
+		from groupinfo
+		<where>
+			1 = 1
+			<if test="id != null and id != ''">
+				and id=#{id}
+			</if>
+			<if test="name != null and name != ''">
+				and name=#{name}
+			</if>
+			<if test="scaleId != null and scaleId != ''">
+				and scaleId=#{scaleId}
+			</if>
+			<if test="groupType != null and groupType != ''">
+				and groupType=#{groupType}
+			</if>
+			<if test="provinceId != null and provinceId != ''">
+				and provinceId=#{provinceId}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and cityId=#{cityId}
+			</if>
+			<if test="schoolId != null and schoolId != ''">
+				and schoolId=#{schoolId}
+			</if>
+			<if test="stuUserId != null and stuUserId != ''">
+				and stuUserId=#{stuUserId}
+			</if>
+			<if test="notice != null and notice != ''">
+				and notice=#{notice}
+			</if>
+			<if test="message != null and message != ''">
+				and message=#{message}
+			</if>
+			<if test="head != null and head != ''">
+				and head=#{head}
+			</if>
+			<if test="status != null and status != ''">
+				and status=#{status}
+			</if>
+			<if test="coin != null and coin != ''">
+				and coin=#{coin}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取指定群信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		g.id,
+		g.`name`,
+		(select scale from groupscale where g.scaleId =
+		id) as gscale,
+		(select `name` from grouptype where g.groupType = id) as
+		gtype,
+		(select
+		`name` from province where g.provinceId = id) as
+		province,
+		(select
+		`name` from city where g.cityId = id) as city,
+		(select proName from scs
+		where g.schoolId = id and g.provinceId = provinceId and g.cityId = cityId) as school,
+		g.stuUserId,
+		(select
+		`name` from stuuser where
+		g.stuUserId = id) as stuUser,
+		g.notice,
+		g.noticeTime,
+		g.message,
+		g.head,
+		g.coin
+		from
+		groupinfo as g
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取群信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		g.id,
+		g.`name`,
+		(select scale from groupscale where g.scaleId =
+		id) as gscale,
+		(select `name` from grouptype where g.groupType = id) as
+		gtype,
+		(select `name` from province where g.provinceId = id) as
+		province,
+		(select `name` from city where g.cityId = id) as city,
+		schoolId,
+		(select
+		`name` from stuuser where g.stuUserId = id) as stuUser,
+		g.notice,
+		g.noticeTime,
+		g.message,
+		g.head,
+		g.`status`,
+		g.coin
+		from groupinfo as g , grouptype gt
+		<where>
+			gt.`id` = g.groupType
+			<if test="id != null and id != ''">
+				and g.id like CONCAT('%',#{id},'%')
+			</if>
+			<if test="name != null and name != ''">
+				and g.name=#{name}
+			</if>
+			<if test="scaleId != null and scaleId != ''">
+				and g.scaleId=#{scaleId}
+			</if>
+			<if test="groupType != null and groupType != ''">
+				and g.groupType=#{groupType}
+			</if>
+			<if test="provinceId != null and provinceId != ''">
+				and g.provinceId=#{provinceId}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and g.cityId=#{cityId}
+			</if>
+			<if test="schoolId != null and schoolId != ''">
+				and g.schoolId=#{schoolId}
+			</if>
+			<if test="stuUserId != null and stuUserId != ''">
+				and g.stuUserId=#{stuUserId}
+			</if>
+			<if test="notice != null and notice != ''">
+				and g.notice=#{notice}
+			</if>
+			<if test="message != null and message != ''">
+				and g.message=#{message}
+			</if>
+			<if test="head != null and head != ''">
+				and g.head=#{head}
+			</if>
+			<if test="status != null and status != ''">
+				and g.status=#{status}
+			</if>
+			<if test="coin != null and coin != ''">
+				and g.coin=#{coin}
+			</if>
+		</where>
+		ORDER BY g.createTime DESC
+	</select>
+
+	<!-- 获取群规模信息列表 -->
+	<select id="findScale" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		scale
+		from groupscale
+		<where>
+			1 = 1
+			<if test="id != null and id != ''">
+				and id=#{id}
+			</if>
+			<if test="scale != null and scale != ''">
+				and scale=#{scale}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取群类型信息列表 -->
+	<select id="findType" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		name
+		from grouptype
+		<where>
+			1 =1
+			<if test="id != null and id != ''">
+				and id=#{id}
+			</if>
+			<if test="name != null and name != ''">
+				and name=#{name}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取群信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		name,
+		scaleId,
+		groupType,
+		provinceId,
+		cityId,
+		schoolId,
+		stuUserId,
+		notice,
+		noticeTime,
+		message,
+		head,
+		status,
+		coin
+		from groupinfo
+		<where>
+			1 = 1
+			<if test="id != null and id != ''">
+				and id=#{id}
+			</if>
+			<if test="name != null and name != ''">
+				and name=#{name}
+			</if>
+			<if test="scaleId != null and scaleId != ''">
+				and scaleId=#{scaleId}
+			</if>
+			<if test="groupType != null and groupType != ''">
+				and groupType=#{groupType}
+			</if>
+			<if test="provinceId != null and provinceId != ''">
+				and provinceId=#{provinceId}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and cityId=#{cityId}
+			</if>
+			<if test="schoolId != null and schoolId != ''">
+				and schoolId=#{schoolId}
+			</if>
+			<if test="stuUserId != null and stuUserId != ''">
+				and stuUserId=#{stuUserId}
+			</if>
+			<if test="notice != null and notice != ''">
+				and notice=#{notice}
+			</if>
+			<if test="message != null and message != ''">
+				and message=#{message}
+			</if>
+			<if test="head != null and head != ''">
+				and head=#{head}
+			</if>
+			<if test="status != null and status != ''">
+				and status=#{status}
+			</if>
+			<if test="coin != null and coin != ''">
+				and coin=#{coin}
+			</if>
+		</where>
+	</select>
+
+	<!-- 接口：群列表查询 by gaolei -->
+	<select id="getGroupList" parameterType="map" resultType="java.util.HashMap">
+		select
+		DISTINCT g.id,
+		g.name,
+		g.scaleId,
+		gt.`name` AS groupType,
+		g.provinceId,
+		g.cityId,
+		g.schoolId,
+		g.stuUserId,
+		g.notice,
+		g.noticeTime,
+		g.message,
+		g.head,
+		g.status,
+		g.coin,
+		g.createTime
+		from groupinfo g, grouptype gt
+		<where>
+			gt.id = g.groupType AND g.stuUserId &lt;&gt; #{userId}
+			<if test="name != null and name != ''">
+				AND g.name like CONCAT('%',#{name},'%')
+			</if>
+			<if test="id != null and id != ''">
+				AND g.id=#{id}
+			</if>
+			<if test="scaleId != null and scaleId != ''">
+				and g.scaleId=#{scaleId}
+			</if>
+			<if test="groupType != null and groupType != ''">
+				and g.groupType=#{groupType}
+			</if>
+			<if test="provinceId != null and provinceId != ''">
+				and g.provinceId=#{provinceId}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and cityId=#{cityId}
+			</if>
+			<if test="schoolId != null and schoolId != ''">
+				and g.schoolId=#{schoolId}
+			</if>
+			<if test="notice != null and notice != ''">
+				and g.notice=#{notice}
+			</if>
+			<if test="message != null and message != ''">
+				and g.message=#{message}
+			</if>
+			<if test="head != null and head != ''">
+				and g.head=#{head}
+			</if>
+			<if test="status != null and status != ''">
+				and g.status=#{status}
+			</if>
+			<if test="coin != null and coin != ''">
+				and g.coin=#{coin}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 查询我的群列表 by gaolei -->
+	<select id="getMyGroupList" parameterType="map" resultType="java.util.HashMap">
+		select
+		DISTINCT g.id,
+		g.name,
+		g.scaleId,
+		g.groupType,
+		(SELECT gt.name FROM grouptype gt where g.groupType = gt.id) groupTypeName,
+		g.provinceId,
+		g.cityId,
+		g.schoolId,
+		g.stuUserId,
+		g.notice,
+		g.noticeTime,
+		g.message,
+		g.head,
+		g.status,
+		g.coin,
+		g.createTime
+		from groupinfo g, groupmember gm
+		where 1 =1 and
+			g.id = gm.groupId AND gm.stuUserId = #{userId}
+			<if test="status != null and status != ''">
+				AND g.status = #{status} and 
+			</if>
+			<if test="name != null and name != ''">
+				g.name like CONCAT('%',#{name},'%')
+			</if>
+		g.id in (select gm.groupId from groupmember gm where gm.stuUserId = #{userId})
+	</select>
+
+	<!-- 查看群详情，gaolei -->
+	<select id="getDetail" parameterType="map" resultType="java.util.HashMap">
+		SELECT
+		g.id,
+		g.`name`,
+		g.stuUserId,
+		g.notice,
+		g.noticeTime,
+		g.head,
+		g.provinceId,
+		g.message,
+		g.coin,
+		(SELECT name FROM province p WHERE p.id = g.provinceId) as provinceName,
+		g.cityId,
+		(SELECT name FROM city c WHERE c.id = g.cityId) as cityName,
+		s.nickname as stuNickname,
+		s.name as stuName,
+		s.head AS stuHead,
+		s.word AS stuWord,
+		(select gt.name from grouptype gt join groupinfo gi on gt.id = gi.groupType and gi.id = #{groupId}) groupTypeName,
+		
+		case
+		when 
+		(select count(*) from groupmember gm where gm.groupId = #{groupId} and gm.stuUserId = #{userId}) &gt; 0 then 1
+		when
+		(select count(*) from groupmember gm where gm.groupId = #{groupId} and gm.stuUserId = #{userId}) &lt;= 0 then 0
+		end isjoin
+		
+		FROM groupinfo g
+		LEFT JOIN stuuser s ON s.id = g.stuUserId
+		where
+		g.id=#{groupId}
+	</select>
+	
+	<!-- 查询群规模 by gaolei -->
+	<select id="queryGroupscale" parameterType="map" resultType="java.util.HashMap">
+		SELECT 
+			id as scaleId,
+			scale as scaleNum 
+		FROM groupscale
+	</select>
+	
+	<!-- 获取群成员列表 gaolei -->
+	<select id="getMembers" parameterType="map" resultType="java.util.HashMap">
+		SELECT
+			s.id,
+			s.nickname,
+			s.name,
+			s.password,
+			s.mobile,
+			s.email,
+			s.birthday,
+			s.sex,
+			s.startYear,
+			s.schoolId,
+			s.collegeId,
+			s.specialtyId,
+			s.status,
+			s.recUserId,
+			s.head,
+			s.word,
+			s.coverPic,
+			s.contentPic,
+			s.coin,
+			s.isOnline,
+			gm.`monthsign` signCount
+		from groupmember gm
+			 LEFT JOIN stuuser s ON s.id = gm.stuUserId
+		WHERE gm.groupId=#{groupId} 
+	</select>
+	
+	<!-- 加入一条新的消息数记录  yesong 2015-2-12 -->
+	<insert id="insertMsgCount" parameterType="java.util.Map">
+		INSERT INTO groupliveness (groupId,speakNum,stuUserId,createTime) values (#{groupId},#{coin},#{userId},#{createTime})
+	</insert>
+	
+	<!-- 查询用户
+	<select id="queryUserMoneyInGroup" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT SUM(speakNum) coinTotal,stuUserId FROM groupliveness WHERE groupId = #{groupId}  AND (createTime &lt; #{endTime} AND createTime &gt; #{startTime} )  GROUP BY stuUserId ORDER BY coinTotal desc 
+	</select>
+	 -->
+	 <select id="queryUserMoneyInGroup" parameterType="java.util.Map" resultType="java.util.Map">
+		select g.`groupId`,g.`stuUserId`,daysign,monthsign from `groupmember` g where g.`groupId`  = #{groupId} and `monthsign` &gt;= 28 
+	</select>
+	 
+	<!-- 群搜索首页，推荐群查询 -->
+	<select id="getHotGroups" resultType="map">
+		SELECT 
+			id,
+			`name`,
+			head ,
+			groupType,
+ 	 		(SELECT `name` FROM grouptype gt WHERE gt.id = g.groupType) groupTypeName,
+			(groupnum * 100 + coin) sortValue 
+		FROM 
+			groupinfo g 
+		JOIN
+			 (SELECT groupId,count(groupId) groupnum FROM groupmember group by groupId ORDER BY groupnum DESC limit 100) AS a 
+		ON
+			 g.id = a.groupId 
+		ORDER BY
+			sortValue DESC
+	</select>	
+	
+	<!-- 查询用户在该群 是否已签到 -->
+	<select id="getSignType" parameterType="map" resultType="map">
+		SELECT 
+			g.daysign type
+		FROM
+			groupmember g
+		WHERE
+			g.groupId = #{groupId}
+		AND
+			g.stuUserId = #{userId}
+	</select>
+	
+	<!-- 签到 -->
+	<update id="sgin" parameterType="map">
+		UPDATE
+			groupmember g
+		SET 
+			g.daysign = 1,
+			g.monthsign = g.monthsign + 1
+		WHERE
+			g.groupId = #{groupId}
+		AND
+			g.stuUserId = #{userId}
+	</update>
+	
+	<!-- 获取群二维码 -->
+	<select id="getQrCode" parameterType="map" resultType="map">
+		SELECT 
+			qrCode
+		FROM
+			groupinfo
+		WHERE
+			id = #{groupId}
+	</select>
+	
+	<!-- 获取群爱友币。群成员 -->
+	<select id="getMemberAndCoin" parameterType="map" resultType="map">
+		SELECT 
+			gm.*,
+			gi.`coin` coin, 
+			0 as addcoin
+		FROM 
+			groupmember gm,
+			groupinfo gi 
+		WHERE 
+			gm.`groupId` = #{groupId}
+		AND 
+			gm.`groupId` = gi.`id`
+	</select>
+	
+	<!-- 解散群 爱友币分配给群成员 -->
+	<update id="updateMembersCoin" parameterType="map">
+		UPDATE 
+			stuuser
+		<trim prefix="set" suffixOverrides=",">
+			<trim prefix="coin = case" suffix="end,">
+				<foreach collection="list" item="param">
+					when id = #{param.stuUserId} then (coin + #{param.addcoin})
+				</foreach>
+			</trim>
+		</trim>
+		WHERE id IN
+		<foreach collection="list" item="param" open="(" separator="," close=")">
+			#{param.stuUserId}
+		</foreach>
+	</update>
+	
+	<!-- 修改群寄语 -->
+	<update id="editMessage" parameterType="map">
+		UPDATE 
+			groupinfo g
+		SET
+			g.message = #{msg}
+		WHERE
+			g.id = #{groupId}
+		
+	</update>
+	
+	<!-- 修改群寄语 -->
+	<update id="updateGroupCoin" parameterType="map">
+		UPDATE 
+			groupinfo g
+		SET
+			g.coin = (#{coin} + g.coin)
+		WHERE
+			g.id = #{id}
+		
+	</update>
+	
+	<!-- 根据群ID与用户ID查询记录 -->
+	<select id="findByGroupIdAndUserId" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT
+			count(*)
+		FROM 
+			groupmember gm
+		WHERE
+			gm.groupId = #{groupId}
+		AND
+			gm.stuUserId = #{userId}
+	</select>
+</mapper> 

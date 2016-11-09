@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Groupmember">
+
+	<insert id="insert" parameterType="map">
+		<if test="stuUserId != null and stuUserId != '' and groupId != null and groupId != ''">
+			insert into groupmember (
+			groupId,
+			stuUserId
+			)values (
+			#{groupId},
+			#{stuUserId}
+			)
+		</if>
+	</insert>
+
+	<delete id="delete" parameterType="map">
+		delete from
+		groupmember
+		where
+		stuUserId=#{stuUserId}
+		and groupId=#{groupId}
+	</delete>
+
+	<select id="findOne" parameterType="map" resultType="map">
+		select
+			groupId,
+			stuUserId
+		from groupmember
+		where
+			groupId=#{groupId}
+			and stuUserId=#{stuUserId}
+	</select>
+
+	<!-- 获取好友关联信息列表（分页） -->
+	<select id="page" parameterType="map" resultType="map">
+		select
+		groupId,
+		stuUserId
+		from groupmember
+		<where>
+			<if test="groupId != null">
+				and groupId=#{groupId}
+			</if>
+			<if test="stuUserId != null">
+				stuUserId=#{stuUserId}
+			</if>
+		</where>
+	</select>
+
+</mapper> 

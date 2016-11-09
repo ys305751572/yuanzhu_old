@@ -1,0 +1,254 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ include file="/common/taglibs.jsp"%>
+<%@ include file="/common/resource.jsp"%>
+<%@ taglib prefix="c"  uri="http://java.sun.com/jsp/jstl/core" %>
+<script type="text/javascript">
+	$(function() {
+		//项目图片预览
+		$("#edit_img").uploadPreview({
+			Img : "picture",
+			Width : 120,
+			Height : 120
+		});
+
+		$('#province').combobox({
+			url : global_ctxPath + '/findProvinceByParams',
+			valueField : "id",
+			textField : "name",
+			editable : false,
+			width : 150,
+			multiple : false,
+			required : false,
+			dataType : 'json',
+			onSelect : function() {
+				$('#city').combobox('clear');
+				loadCity();
+			}
+		});
+
+		$("#province").combobox("select", ${placard.provinceId});
+		$("#city").combobox("select", ${placard.cityId});
+		$("#school").combobox("select", ${placard.schoolId});
+		$("#college").combobox("select", ${placard.collegeId});
+	});
+
+	function loadCity() {
+		$('#city').combobox(
+				{
+					url : global_ctxPath + '/findCityByParams?provinceId='
+							+ $("#province").combobox("getValue"),
+					valueField : "id",
+					textField : "name",
+					editable : false,
+					width : 150,
+					multiple : false,
+					required : false,
+					dataType : 'json',
+					onSelect : function() {
+						$('#school').combobox('clear');
+						// 加载学校信息
+						loadSchool();
+					}
+				});
+	}
+
+	function loadSchool() {
+		$('#school').combobox(
+				{
+					url : global_ctxPath + '/findSchoolByParams?provinceId='
+							+ $("#province").combobox("getValue") + '&cityId='
+							+ $("#city").combobox("getValue") + '&id='
+							+ $("#school").combobox("getValue"),
+					valueField : "id",
+					textField : "proName",
+					editable : false,
+					width : 150,
+					multiple : false,
+					required : false,
+					dataType : 'json',
+					onSelect : function() {
+						$('#college').combobox('clear');
+						// 加载学校信息
+						loadCollege();
+					}
+				});
+	}
+	
+	// 加载学院信息
+	function loadCollege() {
+		$('#college').combobox(
+			{
+				url : global_ctxPath + '/findCollegeByParams?provinceId='
+						+ $("#province").combobox("getValue") + '&cityId='
+						+ $("#city").combobox("getValue") + '&id='
+						+ $("#school").combobox("getValue") + "&collegeId=" + $("#college").combobox("getValue"),
+				valueField : "id",
+				textField : "proName",
+				editable : false,
+				width : 150,
+				multiple : false,
+				required : false,
+				dataType : 'json'
+		});
+	}
+
+	function delPic() {
+		$("#picture").attr('src', '');
+	}
+
+	function tijiao() {
+		var content = $('#content').val();
+		var title = $("#title").val();
+		var provinceid = $('#province').combobox('getValue');
+		var cityid = $('#city').combobox('getValue');
+		var schoolid = $('#school').combobox('getValue');
+		var collegeid = $('#college').combobox('getValue');
+		var IMG = $('#picture').attr('src');
+
+		if (content.replace(/\s/gi, '').length < 1) {
+			divfloat('公告内容不能为空', 160, 40);
+			return false;
+		}
+		if (content.length > 10000 ) {
+			divfloat('公告内容不能大于10000', 160, 40);
+			return false;
+		}
+		if (null == cityid || cityid == '') {
+			divfloat('城市不能为空', 160, 40);
+			return;
+		}
+		if (null == schoolid || schoolid == '') {
+			divfloat('学校不能为空', 160, 40);
+			return;
+		}
+		if (null == collegeid || collegeid == '') {
+			divfloat('学院不能为空', 160, 40);
+			return;
+		}
+		$.ajaxFileUpload({
+			url : global_ctxPath + '/updatePlacard',
+			type : 'post',
+			secureuri : false,
+			frameId : 'temp_upload_frame',
+			fileElementId : [ 'edit_img' ], //文件选择框的id属性
+			dataType : 'json', //服务器返回的格式，可以是json
+			param : {
+				"id" : ${placard.id},
+				"provinceId" : provinceid,
+				"cityId" : cityid,
+				"schoolId" : schoolid,
+				"collegeid" : collegeid,
+				"content" : content,
+				"title" : title,
+				"linkUrl" : $("#linkUrl").val(),
+				"IMG" : IMG,
+				"type": $("input[name='type']:checked").val()
+			},
+			success : function(data) {
+				if (data == '1') {
+					divfloat('修改成功', 160, 40);
+					window.location.href = global_ctxPath + '/placardlist';
+				} else {
+					divfloat('修改失败', 160, 40);
+				}
+			}
+		});
+	}
+
+	//跳转到列表页面
+	function placardlist() {
+		window.location.href = global_ctxPath + '/placardlist';
+	}
+</script>
+
+<body>
+	<div class="easyui-layout" data-options="fit:true,border:false">
+		<div data-options="region:'center',border:false"
+			style="padding-left: 20px;padding-top: 20px;padding-right: 4px;background:#ffffff;overflow:hiadden;">
+			<table class="ttab" height="100%" width="80%" border="0"
+			cellpadding="0" cellspacing="1" align="center">
+				<tr>
+					<td style="text-align: right;">类型<span style="color: red;">*</span>：</td>
+					<td style="text-align: left;">
+						<input type="radio" id="systemuser" name="type" value="1" <c:if test="${placard.type eq 1}">checked="checked"</c:if> />
+						<label style="cursor:pointer" for="systemuser">对外</label>
+						&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+						<input type="radio" id="normaluser" name="type" value="2" <c:if test="${placard.type eq 2}">checked="checked"</c:if>/>
+						<label style="cursor:pointer" for="normaluser">对内</label>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: right;">省份<span style="color: red;">*</span>：</td>
+					<td style="text-align: left;"><select id="province"
+						name="province" class="easyui-combobox" style="width:120px;"
+						data-options="editable:false" disabled="disabled"></select></td>
+				</tr>
+				<tr>
+					<td style="text-align: right;">城市<span style="color: red;">*</span>：</td>
+					<td style="text-align: left;"><select id="city" name="city"
+						class="easyui-combobox" style="width:120px;"
+						data-options="editable:false" disabled="disabled"></select></td>
+				</tr>
+				<tr>
+					<td style="text-align: right;">学校<span style="color: red;">*</span>：</td>
+					<td style="text-align: left;"><select id="school"
+						name="school" class="easyui-combobox" style="width:120px;"
+						data-options="editable:false" disabled="disabled"></select></td>
+				</tr>
+				<tr>
+					<td style="text-align: right;">学院<span style="color: red;">*</span>：</td>
+					<td style="text-align: left;"><select id="college"
+						name="college" class="easyui-combobox" style="width:120px;"
+						data-options="editable:false"></select></td>
+				</tr>
+				<tr>
+					<td style="text-align: right;">图片：</td>
+					<td style="text-align: left;">
+						<div>
+							<img id="picture" src="${placard.picture}"
+								style="height: 200px; width: 300px;display: inherit;" border="0" />
+						</div>
+						<div>
+							<input type="file" style="height: 20px; width: 220px"
+								name="edit_img" id="edit_img" onchange="newFile('hpicture')" />
+							<input type="hidden" id="hpicture" name="picture"
+								value="${placard.picture}" /> <input type="button"
+								class="easyui-linkbutton" style="padding: 3px 5px 3px 5px;"
+								onclick="delPic()" value="删 除" />
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: right; width: 15%;height: 30px"">公告标题<span style="color: red;">*</span>：</td>
+					<td colspan="2">
+						<input id="title" name="title" style="height: 20px;width: 200px" class="textbox" type="text" value="${placard.title}">
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: right; width: 15%;height: 30px"">公告链接：</td>
+					<td colspan="2">
+						<input id="linkUrl" name="linkUrl" style="height: 20px;width: 200px" class="textbox" type="text" value="${placard.linkUrl}">
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: right;">公告内容<span style="color: red;">*</span>：</td>
+					<td style="text-align: left;"><textarea
+							style="height: 100px; width: 500px; resize: none;" id="content"
+							name="content">${placard.content }</textarea></td>
+				</tr>
+				<tr>
+					<td style="text-align: center;" colspan="2"><input
+						type="button" class="easyui-linkbutton"
+						style="padding: 3px 5px 3px 5px;" onclick="tijiao()" value="保 存" />
+						&nbsp;&nbsp; <input type="button" class="easyui-linkbutton"
+						style="padding: 3px 5px 3px 5px;" onclick="placardlist()"
+						value="返 回" /></td>
+				</tr>
+			</table>
+		</div>
+	</div>
+
+	<iframe src="" name="temp_upload_frame" id="temp_upload_frame"
+		style="display: none;"></iframe>
+</body>

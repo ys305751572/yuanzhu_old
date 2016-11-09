@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Filtration">
+
+	<resultMap id="filtrationResultMap" type="Filtration">
+		<id property="id" column="id" />
+		<result property="content" column="content" />
+		<result property="userid" column="userId" />
+		<result property="createtime" column="createTime" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="filtrationResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="filtrationResultMap"></resultMap>
+
+	<!-- 新增关键词信息 -->
+	<insert id="insert" parameterType="Filtration">
+		insert into filtration (
+		id,
+		content,
+		userId,
+		createTime
+		)values (
+		#{id},
+		#{content},
+		#{userId},
+		#{createTime}
+		)
+	</insert>
+
+	<!-- 更新关键词信息 -->
+	<update id="update" parameterType="map">
+		update filtration set
+		id = id
+		<if test="content != null and content != ''">
+			, content=#{content}
+		</if>
+		<if test="userid != null and userid != ''">
+			, userId=#{userid}
+		</if>
+		<if test="createtime != null and createtime != ''">
+			, createTime=#{createtime}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除关键词信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		filtration
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据条件获取关键词信息 -->
+	<select id="get" parameterType="map" resultMap="filtrationResultMap">
+		select
+		id,
+		content,
+		userId,
+		createTime
+		from filtration
+		<where>
+			1 = 1
+			<if test="id != null">
+				and id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and content=#{content}
+			</if>
+			<if test="userid != null and userid != ''">
+				and userId=#{userid}
+			</if>
+			<if test="createtime != null and createtime != ''">
+				and createTime=#{createtime}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取关键词信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		content,
+		userId,
+		createTime
+		from filtration
+		where
+		id=#{id}
+	</select>
+
+	<!-- 根据ID获取关键词信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		f.id,
+		f.content,
+		f.userId,
+		u.userName,
+		CAST(left(FROM_UNIXTIME(left(f.createTime,10)),19) AS CHAR) as time
+		from filtration
+		as f,users as u
+		<where>
+			u.id = f.userId
+			<if test="id != null and id != ''">
+				and f.id=#{id}
+			</if>
+			<if test="content != null and content != ''">
+				and f.content like CONCAT('%',#{content},'%') 
+			</if>
+			<if test="userid != null and userid != ''">
+				and f.userId=#{userid}
+			</if>
+			<if test="stuUser != null and stuUser != ''">
+				and u.userName like CONCAT('%',#{stuUser},'%')
+			</if>
+			<if test="createTime != null and createTime != ''">
+				and
+				left(FROM_UNIXTIME(left(f.createTime,10)),10)=#{createTime}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取关键词信息列表 -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		content
+		from filtration
+	</select>
+</mapper> 

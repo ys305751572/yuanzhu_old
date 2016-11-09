@@ -1,0 +1,1006 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.StuUser">
+	<resultMap id="stuuserResultMap" type="StuUser">
+		<id property="id" column="id" />
+		<result property="nickname" column="nickname" />
+		<result property="name" column="name" />
+		<result property="password" column="password" />
+		<result property="mobile" column="mobile" />
+		<result property="email" column="email" />
+		<result property="birthday" column="birthday" />
+		<result property="provinceId" column="provinceId" />
+		<result property="cityId" column="cityId" />
+		<result property="sex" column="sex" />
+		<result property="startYear" column="startYear" />
+		<result property="schoolId" column="schoolId" />
+		<result property="collegeId" column="collegeId" />
+		<result property="specialtyId" column="specialtyId" />
+		<result property="status" column="status" />
+		<result property="recUserId" column="recUserId" />
+		<result property="head" column="head" />
+		<result property="word" column="word" />
+		<result property="coverPic" column="coverPic" />
+		<result property="contentPic" column="contentPic" />
+		<result property="coin" column="coin" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="stuuserResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="stuuserResultMap"></resultMap>
+	
+	<!-- 更改用户在线状态 -->
+	<update id="updateLineStatus" parameterType="map">
+		UPDATE stuuser SET isOnline = #{isOnline} WHERE 1 =1 AND id = #{userId}
+	</update>
+	
+	<!-- 根据ID查询用户 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		nickname,
+		name,
+		password,
+		mobile,
+		email,
+		birthday,
+		provinceId,
+		cityId,
+		sex,
+		startYear,
+		schoolId,
+		collegeId,
+		specialtyId,
+		status,
+		recUserId,
+		head,
+		word,
+		coverPic,
+		contentPic,
+		coin
+		from stuuser
+		where
+		id=#{id}
+	</select>
+
+	<!-- 根据ID查询用户 -->
+	<select id="queryStuUserById" parameterType="string" resultType="java.util.HashMap">
+		SELECT 
+			id,
+			mobile,
+			nickname,
+			head,
+			coin,
+			provinceId,
+			cityId,
+			schoolId,
+			`name`,
+			`status`
+		FROM 
+			stuuser 
+		WHERE 
+			id = #{id}
+	</select>
+
+	<!-- 登录判断 -->
+	<select id="queryLogin" parameterType="map" resultType="map">
+		SELECT 
+			id,
+			mobile,
+			nickname,
+			head,
+			coin,
+			provinceId,
+			cityId,
+			schoolId,
+			collegeId,
+			`name`,
+			`status`,
+			IFNULL(`alipay`,'') alipay,
+			`sex`
+		FROM 
+			stuuser 
+		WHERE
+			mobile = #{mobile} 
+		AND
+		    password = #{password}
+	</select>
+	
+	<!-- 根据查询条件查询用户 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		SELECT 
+			  a.id,
+		      a.mobile,
+		      a.nickname,
+		      a.`name`,
+		      a.sex,
+		      a.provinceId,
+		      a.cityId,
+		      a.schoolId,
+		      a.collegeId,
+		      a.specialtyId,
+		      a.startYear,
+		      a.`status` ,
+		      a.registerTime,
+		      a.recUserId,
+		      a.validate,
+		      (SELECT s.nickname FROM stuuser s WHERE a.recUserId = s.id ) recNickname
+		 FROM (
+		 	SELECT * FROM(
+				SELECT
+					s.id,
+					s.mobile,
+					s.nickname,
+					s.`name`,
+					s.sex,
+					s.provinceId,
+					s.cityId,
+					s.schoolId,
+					s.collegeId,
+					s.specialtyId,
+					s.startYear,
+					s.`status`,
+					s.registerTime,
+					s.recUserId,
+					s.validate
+				FROM 
+					stuuser s
+				WHERE 
+					s.`status` = 3 ORDER BY s.`id` DESC
+			) t3
+		 	UNION
+			SELECT * FROM(
+				SELECT
+					s.id,
+					s.mobile,
+					s.nickname,
+					s.`name`,
+					s.sex,
+					s.provinceId,
+					s.cityId,
+					s.schoolId,
+					s.collegeId,
+					s.specialtyId,
+					s.startYear,
+					s.`status`,
+					s.registerTime,
+					s.recUserId,
+					s.validate
+				FROM 
+					stuuser s
+				WHERE 
+					s.`status` = 0 ORDER BY s.`id` DESC
+			) t1
+		
+			UNION 
+			SELECT * FROM(
+				SELECT
+					s.id,
+					s.mobile,
+					s.nickname,
+					s.`name`,
+					s.sex,
+					s.provinceId,
+					s.cityId,
+					s.schoolId,
+					s.collegeId,
+					s.specialtyId,
+					s.startYear,
+					s.`status`,
+					s.registerTime,
+					s.recUserId,
+					s.validate
+				FROM 
+					stuuser s
+				WHERE 
+					s.`status` = 2 
+				ORDER BY s.`id` DESC
+			) t2	
+			UNION 
+			SELECT * FROM(
+				SELECT
+					s.id,
+					s.mobile,
+					s.nickname,
+					s.`name`,
+					s.sex,
+					s.provinceId,
+					s.cityId,
+					s.schoolId,
+					s.collegeId,
+					s.specialtyId,
+					s.startYear,
+					s.`status`,
+					s.registerTime,
+					s.recUserId,
+					s.validate
+				FROM 
+					stuuser s
+				WHERE 
+					s.`status` = 1 
+				ORDER BY s.`id` DESC
+			) t3	
+	)
+ 		a 
+ 		<if test="startYear != null and startYear != ''">
+			join years ys on ys.id = #{startYear} AND ys.`year` = a.`startYear`
+		</if>
+		WHERE 1 = 1
+		<if test="provinceId != null and provinceId != ''">
+			and a.provinceId = #{provinceId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			and a.cityId = #{cityId}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			and a.schoolId = #{schoolId}
+		</if>
+		<if test="name != null and name != ''">
+			and a.name like CONCAT('%',#{name},'%')
+		</if>
+		<if test="mobile != null and mobile != ''">
+			and a.mobile like CONCAT('%',#{mobile},'%')
+		</if>
+		<if test="status != null and status != ''">
+			and a.status = #{status}
+		</if>
+	</select>
+
+	<!-- 新增用户 -->
+	<insert id="insertEntity" parameterType="com.bluemobi.pro.pojo.StuUser">
+		INSERT INTO 
+			stuuser 
+			<set>
+				<if test="mobile != null">
+					mobile = #{mobile},
+				</if>
+				<if test="password != null">
+					password = #{password},
+				</if>
+				<if test="nickname != null">
+					nickname = #{nickname},
+				</if>
+				registerTime = NOW()
+			</set>
+		<selectKey resultType="java.lang.Integer" keyProperty="id">
+			SELECT last_insert_id()
+		</selectKey>
+	</insert>
+	
+	<!-- 保存用户资料   yesong-->
+	<update id="updateInfo" parameterType="map">
+		update stuuser 
+		<set>
+			<if test="userId != null">
+				id = #{userId},
+			</if>
+			<if test="nickname != null">
+				nickname = #{nickname},
+			</if>
+			<if test="name != null">
+				name = #{name},
+			</if>
+			<if test="mobile != null">
+				mobile = #{mobile},
+			</if>
+			<if test="email != null">
+				email = #{email},
+			</if>
+			<if test="birthday != null">
+				birthday = #{birthday},
+			</if>
+			<if test="provinceId != null">
+				provinceId = #{provinceId},
+			</if>
+			<if test="cityId != null">
+				cityId = #{cityId},
+			</if>
+			<if test="sex != null">
+				sex = #{sex},
+			</if>
+			<if test="startYear != null">
+				startYear = #{startYear},
+			</if>
+			<if test="schoolId != null">
+				schoolId = #{schoolId},
+			</if>
+			<if test="collegeId != null">
+				collegeId = #{collegeId},
+			</if>
+			<if test="specialtyId != null">
+				specialtyId = #{specialtyId},
+			</if>
+			<if test="labelId != null">
+				labelId = #{labelId},
+			</if>
+			<if test="userId != null">
+				id = #{userId},
+			</if>
+			<if test="id != null">
+				id = #{id},
+			</if>
+			<if test="perfectInfo != null and perfectInfo != ''">
+				perfectInfo = #{perfectInfo},
+			</if>
+			<if test="alipay != null and alipay != ''">
+				alipay = #{alipay},
+			</if>
+		</set>
+		where id = #{userId}
+	</update>
+		
+	<!-- 根据手机号查询用户 -->
+	<select id="queryUserByTel" parameterType="string"
+		resultType="java.util.HashMap">
+		select
+			id,
+			mobile,
+			nickname,
+			head,
+			coin,
+			provinceId,
+			cityId,
+			schoolId,
+			`name`,
+			`status`
+		from
+		stuuser
+		where
+		mobile = #{mobile}
+	</select>
+
+	<!-- 根据ID查询用户 by gaolei -->
+	<select id="findUserDetailById" parameterType="string"
+		resultType="java.util.HashMap">
+		SELECT
+		stuuser.id,
+		stuuser.name,
+		stuuser.nickname,
+		stuuser.mobile,
+		stuuser.head,
+		stuuser.provinceId,
+		stuuser.cityId,
+		stuuser.sex,
+		stuuser.status,
+		stuuser.coin,
+		stuuser.schoolId,
+		stuuser.perfectInfo isperfect,
+		stuuser.collegeId,
+		stuuser.specialtyId,
+		word,
+		
+		(SELECT fnote FROM friend f WHERE f.stuUserId = #{currUserId} AND friendId = #{userId}) fnote,
+		
+		case 
+		when 
+		(select count(*) from friend f where f.friendId = #{userId} and f.stuUserId = #{currUserId}) &lt;= 0
+		then 0
+		when 
+		(select count(*) from friend f where f.friendId = #{userId} and f.stuUserId = #{currUserId}) &gt; 0
+		then 1 end isfriend
+		FROM
+		stuuser
+		WHERE
+		stuuser.id = #{id}
+	</select>
+
+	<select id="findUserDetailById2" parameterType="string"
+		resultType="java.util.HashMap">
+		SELECT
+		stuuser.id,
+		stuuser.name,
+		stuuser.nickname,
+		stuuser.mobile,
+		stuuser.head,
+		stuuser.sex,
+		stuuser.status,
+		stuuser.coin,
+		stuuser.schoolId,
+		stuuser.perfectInfo isperfect,
+		IFNULL((select proName FROM scs WHERE
+		scs.id=stuuser.schoolId and scs.provinceId = stuuser.provinceId and scs.cityId = stuuser.cityId) ,"") AS schoolName,
+		stuuser.collegeId ,
+		IFNULL((select
+		proName FROM scs WHERE scs.id=stuuser.collegeId and scs.pid = stuuser.schoolId and stuuser.provinceId = scs.provinceId and scs.cityId = stuuser.cityId),"" )AS collegeName,
+		stuuser.specialtyId,
+		IFNULL((select proName from scs s where stuuser.specialtyId = s.id and s.pid = stuuser.collegeId and stuuser.provinceId = s.provinceId and s.cityId = stuuser.cityId),"")AS specialtyName,
+		word,
+		(SELECT fnote FROM friend f WHERE f.stuUserId = #{currUserId} AND friendId = #{userId}) fnote,
+		case 
+		when 
+		(select count(*) from friend f where f.friendId = #{userId} and f.stuUserId = #{currUserId}) &lt;= 0
+		then 0
+		when 
+		(select count(*) from friend f where f.friendId = #{userId} and f.stuUserId = #{currUserId}) &gt; 0
+		then 1 end isfriend
+		FROM
+		stuuser
+		WHERE
+		stuuser.id = #{id}
+	</select>
+
+	<!-- 根据id查询好友信息 -->
+	<select id="queryFriends" parameterType="map" resultType="java.util.HashMap">
+		SELECT
+			distinct friendId AS id,
+			s.nickname,
+			s.name,
+			s.mobile,
+			s.email,
+			s.birthday,
+			s.sex,
+			s.startYear,
+			s.schoolId,
+			s.collegeId,
+			s.specialtyId,
+			s.status,
+			s.recUserId,
+			s.head,
+			s.word,
+			s.coverPic,
+			s.contentPic,
+			s.coin,
+			s.isOnline,
+			f.fnote
+		FROM
+			friend f
+			LEFT JOIN stuuser s ON s.id = f.friendId
+		WHERE
+			f.stuUserId = #{id}
+			<if test="nickname != null">
+				and (s.nickname like CONCAT('%',#{nickname},'%') or s.name like CONCAT('%',#{nickname},'%')
+				      OR f.fnote LIKE CONCAT("%", #{nickname}, "%"))
+			</if>
+		order by s.isOnline
+	</select>
+
+	<!-- 根据用户ID查询协助人整人ID  yesong-->
+	<select id="findRecUserId" parameterType="string" resultType="map">
+		SELECT nickname,recUserId FROM stuuser WHERE id = #{id}
+	</select>
+	
+	<!-- 根据用户ID查询是否完善信息 yesong -->
+	<select id="findPerfectInfo" parameterType="string" resultType="int">
+		SELECT perfectInfo FROM stuuser WHERE id = #{id}
+	</select>
+
+	<!-- 查询所有 by gaolei -->
+	<select id="queryAll" parameterType="map" resultType="java.util.HashMap">
+		SELECT
+			s.id,
+			s.nickname,
+			s.name,
+			s.password,
+			s.mobile,
+			s.email,
+			s.birthday,
+			s.sex,
+			s.startYear,
+			s.schoolId,
+			s.collegeId,
+			s.specialtyId,
+			s.status,
+			s.recUserId,
+			s.head,
+			s.word,
+			s.coverPic,
+			s.contentPic,
+			s.coin,
+			s.isOnline,
+			
+			case 
+			when 
+			(select count(*) from friend f where f.friendId = s.id and f.stuUserId = #{userId}) &lt;= 0
+			then 0
+			when 
+			(select count(*) from friend f where f.friendId = s.id and f.stuUserId = #{userId}) &gt; 0
+			then 1 end isfriend
+			FROM
+				stuuser s
+			where 1=1
+		<if test="nickname != null and nickname != ''">
+			and (s.name = #{nickname} or s.nickname = #{nickname})
+		</if>
+		<if test="sex != null and sex != ''">
+			and sex = #{sex}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			and cityId = #{cityId}
+		</if>
+		<if test="provinceId != null and provinceId != ''">
+			and provinceId = #{provinceId}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			and schoolId = #{schoolId}
+		</if>
+		<if test="collegeId != null and collegeId != ''">
+			and collegeId = #{collegeId}
+		</if>
+		<if test="startYear != null and startYear != ''">
+			and startYear = #{startYear}
+		</if>
+		<if test="interestIdArr != null">
+			and id in
+			(
+				SELECT stuUserId FROM stuinterests WHERE interestId in 
+			<foreach collection="interestIdArr" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			)
+		</if>
+		
+		<if test="labelsIdArr != null">
+			and id in
+			(
+				SELECT su.id FROM stuuser su WHERE su.labelId in 
+			<foreach collection="labelsIdArr" index="index" item="item" open="(" separator="," close=")">
+				#{item}
+			</foreach>
+			)
+		</if>
+		order by s.isOnline desc
+	</select>
+
+	<!-- 个人中心 查询用户信息 -->
+	<select id="info" parameterType="map" resultType="java.util.HashMap">
+		SELECT 
+			t.id,
+			t.head,
+			t.status,
+			t.name,
+			t.nickname,
+			t.mobile,
+			t.email,
+			t.birthday,
+			t.sex,
+			t.startYear,
+			t.provinceId,
+			t.perfectInfo isperfect,
+			IFNULL(t.alipay,"") alipay,
+			IFNULL(t.alipayname,"") alipayname,
+			IFNULL(t.integral, 0),
+			(select name from province p where t.provinceId = p.id) province,
+			t.cityId,
+			(select name from city c where t.cityId = c.id) city,
+			t.schoolId,
+			(select proName from scs s where t.schoolId = s.id and s.provinceId = provinceId and s.cityId = t.cityId) school,
+			t.collegeId,
+			(select proName from scs s where t.collegeId = s.id and s.pid = t.schoolId and t.provinceId = s.provinceId and s.cityId = t.cityId) college,
+			t.specialtyId,
+			(select proName from scs s where t.specialtyId = s.id and s.pid = t.collegeId and t.provinceId = s.provinceId and s.cityId = t.cityId) specialty,
+			t.labelId,
+			(select name from labels l where l.id = t.labelId) label
+		FROM 
+			stuuser t
+		WHERE
+			t.id = #{userId}
+	</select>
+
+	<!-- 通过ids查询 -->
+	<select id="getByIds" parameterType="map" resultType="java.util.HashMap">
+		SELECT
+		s.nickname,
+		s.name,
+		s.password,
+		s.mobile,
+		s.email,
+		s.birthday,
+		s.sex,
+		s.startYear,
+		s.schoolId,
+		s.collegeId,
+		s.specialtyId,
+		s.status,
+		s.recUserId,
+		s.head,
+		s.word,
+		s.coverPic,
+		s.contentPic,
+		s.coin
+		FROM
+		stuuser s
+		where s.id in
+		<if test="ids.size() > 0">
+			<foreach collection="ids" index="index" item="item" open="("
+				separator="," close=")">
+				#{item}
+			</foreach>
+		</if>
+		<if test="ids.size() == 0">
+			('')
+		</if>
+	</select>
+	<update id="updatePsw" parameterType="com.bluemobi.pro.pojo.StuUser">
+		UPDATE stuuser SET password
+		= #{password} WHERE mobile = #{mobile}
+	</update>
+	
+	<!-- 修改手机 yesong 2014-11-19 -->
+	<update id="updateMobile" parameterType="java.util.HashMap">
+		UPDATE stuuser SET mobile = #{mobile} WHERE id = #{userId}
+	</update>
+	
+	<!-- 修改头像 yesong 2014-11-19 -->
+	<update id="updateHead" parameterType="java.util.HashMap">
+		UPDATE stuuser SET head = #{head} WHERE id = #{userId}
+	</update>
+	
+	<!-- 学生认证 -->
+	<update id="cardAuth" parameterType="java.util.HashMap">
+		UPDATE 
+			stuuser 
+		SET 
+		<if test="name != null and name != ''">
+			name = #{name},
+		</if>
+		<if test="sex != null and sex != ''">
+			sex = #{sex},
+		</if>	
+		<if test="startYear != null and startYear != ''">
+			startYear = #{startYear},
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			schoolId = #{schoolId},
+		</if>
+		<if test="coverPic != null and coverPic != ''">
+			coverPic = #{coverPic},
+		</if>
+		<if test="contentPic != null and contentPic != ''">
+			contentPic = #{contentPic},
+		</if>
+		<if test="status != null and status != ''">
+			status=#{status}
+		</if>
+	    WHERE id = #{userId}
+	</update>
+	
+	<!-- 验证推荐人是否存在  yesong 2014-11-19 -->
+	<select id="queryUserByMobileAndName" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT s.mobile,s.id FROM stuuser s WHERE s.mobile = #{mobile} AND s.name = #{name} AND s.`status` = 2
+	</select>
+	
+	<!-- 新增认证人ID yesong 2014-11-19 -->
+	<update id="addAuth" parameterType="java.util.HashMap">
+		UPDATE stuuser SET recUserId = #{recUserId},status=#{status} WHERE id = #{userId}
+	</update>
+	
+	<!-- 查看签名 -->
+	<select id="myWord" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT word from stuuser WHERE id = #{userId}
+	</select>
+	
+	<!-- 更新签名 -->
+	<update id="saveWord" parameterType="java.util.HashMap">
+		UPDATE stuuser SET word = #{word} WHERE id = #{userId}
+	</update>
+	
+	<!-- 查看爱心币 -->
+	<select id="getCoin" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT coin from stuuser WHERE id = #{userId}
+	</select>
+	
+	<!-- 增加  操作爱心币 -->
+	<update id="coinOperate" parameterType="java.util.HashMap">
+		UPDATE stuuser SET coin = #{coin} WHERE id = #{userId}
+	</update>
+	
+	<!-- yesong 2015-1-5 根据用户ID查询充值记录 -->
+	<select id="coinList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT 
+			c.id,
+			c.content,
+			c.type,
+			c.status1 status
+		FROM 
+		    coinlog c 
+		WHERE 
+			c.stuUserId = #{userId}
+		AND
+			c.status1 = 1
+		ORDER BY c.createTime desc
+	</select>
+	
+	<!-- 更新用户在线状态  gaolei-->
+	<update id="updateOnlineStatus" parameterType="java.util.HashMap">
+		UPDATE stuuser SET isOnline = #{isOnline} WHERE id = #{userId}
+	</update>
+	
+	<!-- 更新用户 -->
+	<update id="update" parameterType="map">
+		update stuuser set
+		<if test="id != null and id != ''">
+			id=#{id}
+		</if>
+		<if test="nickname != null and nickname != ''">
+			, nickname=#{nickname}
+		</if>
+		<if test="name != null and name != ''">
+			, name=#{name}
+		</if>
+		<if test="password != null and password != ''">
+			, password=#{password}
+		</if>
+		<if test="mobile != null and mobile != ''">
+			, mobile=#{mobile}
+		</if>
+		<if test="email != null and email != ''">
+			, email=#{email}
+		</if>
+		<if test="birthday != null and birthday != ''">
+			, birthday=#{birthday}
+		</if>
+		<if test="provinceId != null and provinceId != ''">
+			, provinceId=#{provinceId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			, cityId=#{cityId}
+		</if>
+		<if test="sex != null and sex != ''">
+			, sex=#{sex}
+		</if>
+		<if test="startYear != null and startYear != ''">
+			, startYear=#{startYear}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			, schoolId=#{schoolId}
+		</if>
+		<if test="collegeId != null and collegeId != ''">
+			, collegeId=#{collegeId}
+		</if>
+		<if test="specialtyId != null and specialtyId != ''">
+			, specialtyId=#{specialtyId}
+		</if>
+		<if test="status != null and status != ''">
+			, status=#{status}
+		</if>
+		<if test="recUserId != null and recUserId != ''">
+			, recUserId=#{recUserId}
+		</if>
+		<if test="head != null and head != ''">
+			, head=#{head}
+		</if>
+		<if test="word != null and word != ''">
+			, word=#{word}
+		</if>
+		<if test="coverPic != null and coverPic != ''">
+			, coverPic=#{coverPic}
+		</if>
+		<if test="contentPic != null and contentPic != ''">
+			, contentPic=#{contentPic}
+		</if>
+		<if test="coin != null and coin != ''">
+			, coin=#{coin}
+		</if>
+		where
+		id=#{id}
+	</update>
+	
+	<!-- 根据ID查询用户 -->
+	<select id="get" parameterType="map" resultType="java.util.HashMap">
+		select
+		s.id,
+		s.nickname,
+		s.name,
+		s.mobile,
+		s.email,
+		s.birthday,
+		s.sex,
+		s.startYear,
+		s.provinceId,
+		s.schoolId,
+		s.collegeId,
+		s.specialtyId,
+		(select proName from scs
+		where
+		s.schoolId = id and s.provinceId = provinceId and s.cityId = cityId and `level` = 1) as school,
+		(select proName from scs where
+		s.collegeId
+		= id and pid = s.schoolId and s.provinceId = provinceId and s.cityId = cityId and `level` = 2) as college,
+		(select proName from scs where s.specialtyId = id and pid = s.collegeId and s.provinceId = provinceId and s.cityId = cityId and `level` = 3) as specialty,
+		(select group_concat(interest) from interests where
+		id in (select interestId from stuinterests where stuUserId = s.id)) as
+		interest,
+		(select ls.name from labels ls where ls.id = s.labelId) as label,
+		(select mobile from
+		stuuser where id = s.recUserId) as recUserMobile,
+		(select `name` from stuuser
+		where id = s.recUserId) as recUserName,
+		s.status,
+		s.coverPic,
+		s.contentPic,
+		s.coin
+		from
+		stuuser as s
+		where s.id=#{id}
+	</select>
+	
+	<!-- 根据ID查询用户  叶松 2015-1-26-->
+	<select id="checkUser" parameterType="Integer" resultType="java.util.HashMap">
+		select
+			s.nickname,
+			s.name,
+			s.mobile,
+			s.email,
+			s.birthday,
+			s.provinceId,
+			s.cityId,
+			s.startYear,
+			s.schoolId,
+			s.collegeId,
+			s.specialtyId,
+			s.coverPic,
+			s.contentPic,
+			s.recUserId,
+			s.labelId
+		from
+			stuuser as s
+		where 
+		    s.id=#{id}
+	</select>
+	
+	<!-- 查询年份 -->
+	<select id="findYears" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		year
+		from years
+		<where>
+			1 = 1
+			<if test="id != null and id != ''">
+				and id=#{id}
+			</if>
+			<if test="year != null and year != ''">
+				and year=#{year}
+			</if>
+		</where>
+	</select>
+	
+	<!-- 根据手机号删除用户  gaolei -->
+	<select id="deleteByMobile" parameterType="String">
+		DELETE FROM stuuser WHERE mobile=#{mobile}
+	</select>
+	
+	<!-- 删除该用户的兴趣关联数据 叶松  2014-12-18 -->
+	<delete id="deleteInsterestByUserId" parameterType="java.lang.Integer">
+		DELETE FROM stuinterests WHERE stuUserId = #{userId}
+	</delete>
+	
+	<!-- 保存用户兴趣关联关系 yesong 2014-12-18 -->
+	<insert id="insertStuInsterest" parameterType="java.util.Map">
+		INSERT INTO stuinterests (stuUserId,interestId) VALUES (#{userId},#{inId})
+	</insert>
+	
+	<!-- 获取该用户的兴趣集合 -->
+	<select id="queryInterestIds" parameterType="java.lang.Integer" resultType="java.util.Map"> 
+		SELECT 
+			t.stuUserId,
+			t.interestId,
+			i.interest inname
+		FROM 
+		    stuinterests t
+		JOIN
+		    interests i
+		ON
+		    t.interestId = i.id
+		WHERE 
+		    stuUserId = #{userId}
+	</select>
+	
+	<select id="getScsByUserInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT 
+			s.proName,
+			s.level 
+		FROM 
+			scs s 
+		WHERE  
+			s.`provinceId` = #{provinceId} AND s.`cityId` = #{cityId} AND ( s.`id` =#{schoolId} OR s.`id` = #{collegeId} OR s.`id` = #{specialtyId})
+	</select>
+	
+	<!-- 获取个人二维码 -->
+	<select id="getQrCode" parameterType="map" resultType="map">
+		SELECT 
+			s.qrCode
+		FROM
+			stuuser s
+		WHERE
+			s.id = #{userId}
+	</select>
+	
+	<!-- 获取获取消息数 -->
+	<select id="getActCount" parameterType="map" resultType="map">
+			SELECT 
+				COUNT(*) act_count
+			FROM 
+				activities a 
+			WHERE 
+				a.`stuUserId` = #{userId} 
+			AND 
+				a.`isnew` = 1;
+	</select>
+	
+	<!-- 获取任务消息数 -->
+	<select id="getTaskCount" parameterType="map" resultType="map">
+		SELECT 
+			COUNT(*) task_count 
+		FROM 
+			task t 
+		WHERE 
+			t.`release_user_id` = #{userId} 
+		AND 
+			t.`accept_id` &lt;&gt; 0
+			
+	</select>
+	
+	<!-- 三期接口数据 -->
+	
+	<!-- 绑定支付宝账号 -->
+	<update id="bindAlipay" parameterType="map">
+		UPDATE
+			stuuser
+		SET
+			alipay = #{alipay},
+			alipayname = #{alipayname}
+		WHERE
+			id = #{userId}
+	</update>
+	
+	<!-- 更新用户爱佑币 -->
+	<update id="modifyUserCoin" parameterType="map">
+		UPDATE
+			stuuser
+		<if test="type == 0">
+			SET
+			coin = (coin - #{task_coin})
+		</if>
+		<if test="type == 1">
+			SET
+			coin = (coin + #{task_coin})
+		</if>
+		WHERE	
+			id = #{userId}
+	</update>
+	
+	<!-- 个人中心 查询用户信息 (我的钱包) -->
+	<select id="wallet" parameterType="map" resultType="java.util.HashMap">
+		SELECT 
+			t.id,
+			IFNULL(t.alipay,"") alipay,
+			IFNULL(t.alipayname,"") alipayname,
+			IFNULL(t.integral,"") integral
+		FROM 
+			stuuser t
+		WHERE
+			t.id = #{userId}
+	</select>
+	
+	<!-- 查询我的钱包记录集合 -->
+	<select id="findRecordList" parameterType="map" resultType="map">
+		SELECT
+			t.id,
+			t.`task_id` taskId,
+			t.`result`,
+			t.`content`,
+			<if test="type == 0">
+				t.`status`,
+			</if>
+			t.`create_time` createTime
+		FROM
+			task_record t
+		WHERE
+			t.user_id = #{userId}
+		AND
+			t.type = #{type}
+	</select>
+	
+	<!-- 修改用户验证状态 -->
+	<update id="exchangevlidate" parameterType="map">
+		UPDATE 
+			stuuser
+		SET
+			validate = #{t_status}
+		WHERE
+			id = #{userId}
+	</update>
+</mapper> 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluemobi.pro.pojo.Groupliveness">
+
+	<insert id="insert" parameterType="map">
+		<if
+			test="stuUserId != null and stuUserId != '' and groupId != null and groupId != '' and speakNum != null and speakNum != ''">
+			insert into groupmember (
+			groupId,
+			stuUserId,
+			speakNum
+			)values (
+			#{groupId},
+			#{stuUserId},
+			#{speakNum}
+			)
+		</if>
+	</insert>
+	
+	<select id="getLivenessUsers" parameterType="String" resultType="map">
+		SELECT 
+			* 
+		FROM
+			groupliveness
+		WHERE groupId=#{groupId} 
+		ORDER BY speakNum desc
+	</select>
+</mapper> 

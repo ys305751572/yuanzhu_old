@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向POJO接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Province">
+	
+	<!-- 获取省份 -->
+	<select id="queryProvince" resultType="map">
+		SELECT id,name,brevitycode FROM province where id &gt; 0
+	</select>
+	
+	<!-- 获取城市 -->
+	<select id="queryCity" parameterType="map" resultType="java.util.HashMap">
+		SELECT 
+			id,
+			name,
+			provinceId,
+			brevitycode
+		FROM 
+			city
+		WHERE
+		    1 = 1
+		<if test="provinceId != null and provinceId != ''">
+			AND provinceId = #{provinceId}
+		</if>
+		AND id &gt; 0
+	</select>
+	
+	<!-- 获取学校学院专业列表 -->
+	<select id="queryScs" parameterType="map" resultType="java.util.HashMap">
+		select
+			id,
+			proName,
+			pid,
+			level,
+			provinceId,
+			cityId
+		from 
+			scs
+		where 
+			1=1
+		<if test="provinceId != null and provinceId != ''">
+			AND provinceId = #{provinceId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			AND cityId = #{cityId}
+		</if>
+		<if test="pId != null and pId != ''">
+			AND pId = #{pId}
+		</if>
+		<if test="level != null and level != ''">
+			AND level = #{level}
+		</if>
+		<if test="searchName != null and searchName != ''">
+			AND proName LIKE CONCAT('%',#{searchName},'%')
+		</if>
+		AND id &gt; 0
+	</select>
+	
+	<!-- 获取年份 -->
+	<select id="queryYear" resultType="java.util.HashMap">
+		SELECT id,year FROM years
+	</select>
+	
+	<!-- 获取兴趣 -->
+	<select id="queryInterest" resultType="java.util.HashMap">
+		SELECT id,interest FROM interests where id &gt; 0
+	</select>
+	
+	<!-- 获取标签 yesong 2014-11-19-->
+	<select id="queryLabel" resultType="java.util.HashMap">
+		SELECT id,name FROM labels where id &gt; 0
+	</select>
+</mapper> 

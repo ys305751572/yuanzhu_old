@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Friend">
+
+	<resultMap id="friendResultMap" type="Friend">
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="friendResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="friendResultMap"></resultMap>
+
+	<!-- 新增好友关联信息 -->
+	<insert id="insert" parameterType="Friend">
+		<if
+			test="stuUserId != null and stuUserId != '' and friendId != null and friendId != ''">
+			insert into friend (
+			stuUserId,
+			friendId
+			)values (
+			#{stuUserId},
+			#{friendId}
+			)
+		</if>
+	</insert>
+
+	<!-- 更新好友关联信息 -->
+	<update id="update" parameterType="map">
+		update friend set
+		<if test="stuUserId != null and stuUserId != ''">
+			stuUserId=#{stuUserId}
+		</if>
+		<if test="friendId != null and friendId != ''">
+			, friendId=#{friendId}
+		</if>
+		where
+	</update>
+
+	<!-- 删除好友关联信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		friend
+		where
+		stuUserId=#{stuUserId}
+		and friendId=#{friendId}
+	</delete>
+
+	<!-- 获取好友关联信息 -->
+	<select id="get" parameterType="Friend" resultType="Friend">
+		select
+		stuUserId,
+		friendId
+		from friend
+		<where>
+			<if test="stuUserId != null">
+				stuUserId=#{stuUserId}
+			</if>
+			<if test="friendId != null">
+				and friendId=#{friendId}
+			</if>
+		</where>
+	</select>
+
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		stuUserId,
+		friendId
+		from friend
+		where
+	</select>
+
+	<!-- 获取好友关联信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		stuUserId,
+		friendId
+		from friend
+		<where>
+			<if test="stuUserId != null">
+				stuUserId=#{stuUserId}
+			</if>
+			<if test="friendId != null">
+				and friendId=#{friendId}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取好友关联信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		stuUserId,
+		friendId
+		from friend
+		<where>
+			<if test="stuUserId != null">
+				stuUserId=#{stuUserId}
+			</if>
+			<if test="friendId != null">
+				and friendId=#{friendId}
+			</if>
+		</where>
+	</select>
+
+	<!-- gaolei -->
+	<select id="getFriendIdList" parameterType="map" resultType="java.lang.String">
+		select
+		friendId
+		from friend
+		where stuUserId=#{stuUserId}
+	</select>
+	
+	<!-- 修改用户备注 -->
+	<update id="updatefnote" parameterType="map">
+		UPDATE 
+			friend f
+		SET
+			f.fnote = #{fnote}
+		WHERE
+			f.stuUserId = #{currId}
+		AND
+			f.friendId = #{userId}
+	</update>
+</mapper> 

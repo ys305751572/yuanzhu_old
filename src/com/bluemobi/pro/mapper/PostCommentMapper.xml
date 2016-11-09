@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bluemobi.pro.pojo.PostComment">
+	
+	<resultMap type="com.bluemobi.pro.pojo.PostComment" id="postCommentResultMap">
+		<id column="id" property="id"/>
+		<result column="from_user_id" property="fromUserId" />
+		<result column="from_user_name" property="fromUserName" typeHandler="com.bluemobi.constant.StringIfNull"/>
+		<result column="from_user_head" property="fromUserHead"  typeHandler="com.bluemobi.constant.StringIfNull"/>
+		
+		<result column="to_user_id" property="toUserId" />
+		<result column="to_user_name" property="toUserName"  typeHandler="com.bluemobi.constant.StringIfNull"/>
+		<result column="to_user_head" property="toUserHead"  typeHandler="com.bluemobi.constant.StringIfNull"/>
+		
+		<result column="content" property="content"  typeHandler="com.bluemobi.constant.StringIfNull"/>
+		<result column="create_date" property="createDate"/>
+		
+		<!-- 
+		<collection property="list" column="{comment_id2 = id}" ofType="com.bluemobi.pro.pojo.PostComment" select="listSub">
+		</collection>
+		 -->
+	</resultMap>
+	
+	<!-- 
+	<resultMap type="com.bluemobi.pro.pojo.PostComment" id="postCommentResultMap2">
+		<id column="id" property="id"/>
+		<result column="from_user_id" property="fromUserId"/>
+		<result column="from_user_name" property="fromUserName" typeHandler="com.bluemobi.constant.StringIfNull"/>
+		<result column="from_user_head" property="fromUserHead" typeHandler="com.bluemobi.constant.StringIfNull"/>
+		
+		<result column="to_user_id" property="toUserId" />
+		<result column="to_user_name" property="toUserName" typeHandler="com.bluemobi.constant.StringIfNull"/>
+		<result column="to_user_head" property="toUserHead" typeHandler="com.bluemobi.constant.StringIfNull" />
+		
+		<result column="content" property="content" typeHandler="com.bluemobi.constant.StringIfNull"/>
+		<result column="create_date" property="createDate"/>
+	</resultMap>
+	 -->
+	 
+	<!-- 评论列表 -->
+	<select id="listPage" parameterType="map" resultMap="postCommentResultMap">
+		SELECT
+			t.id,
+			t.from_user_id,
+			(SELECT u.nickname FROM stuuser u WHERE u.id = t.from_user_id) from_user_name,
+			(SELECT u.head FROM stuuser u WHERE u.id = t.from_user_id) from_user_head,
+			
+			t.to_user_id,
+			(SELECT u.nickname FROM stuuser u WHERE u.id = t.to_user_id) to_user_name,
+			(SELECT u.head FROM stuuser u WHERE u.id = t.to_user_id) to_user_head,
+			
+			t.content,
+			DATE_FORMAT(t.create_date,'%Y-%m-%d %H:%i:%s') create_date
+		FROM
+			post_comment t
+		WHERE
+			t.post_id = #{id}
+		ORDER BY
+			t.create_date 
+		DESC
+	</select>
+	
+	<!--
+	<select id="listSub" parameterType="map" resultMap="postCommentResultMap2">
+		SELECT
+			t.id,
+			t.from_user_id,
+			(SELECT u.nickname FROM stuuser u WHERE u.id = t.from_user_id) from_user_name,
+			(SELECT u.head FROM stuuser u WHERE u.id = t.from_user_id) from_user_head,
+			
+			t.to_user_id,
+			(SELECT u.nickname FROM stuuser u WHERE u.id = t.from_user_id) to_user_name,
+			(SELECT u.head FROM stuuser u WHERE u.id = t.from_user_id) to_user_head,
+			
+			t.content,
+			DATE_FORMAT(t.create_date,'%Y-%m-%d %H:%i:%s') create_date
+		FROM
+			post_comment t
+		WHERE
+			t.to_user_id &lt;&gt; 0
+		AND
+			t.comment_id = #{comment_id2}
+		ORDER BY
+		    t.create_date DESC
+	</select>
+	  -->
+	  
+	<!-- 新增评论 -->
+	<insert id="postComment" parameterType="map">
+		INSERT INTO	
+			post_comment
+		(
+			post_id,
+			from_user_id,
+			<if test="toUserId != null and toUserId != ''">
+				to_user_id,
+			</if>
+			<if test="commentId != null and commentId != ''">
+				comment_id,
+			</if>
+			content,
+			create_date
+		)
+		VALUES
+		(
+			#{id},
+			#{fromUserId},
+			<if test="toUserId != null and toUserId != ''">
+				#{toUserId},
+			</if>
+			<if test="commentId != null and commentId != ''">
+				#{commentId},
+			</if>
+			#{content},
+			NOW()
+		)
+	</insert>
+	
+	<!-- 删除评论 -->
+	<delete id="commentDelById" parameterType="map">
+		DELETE FROM
+			post_comment
+		WHERE
+			id = #{id}
+	</delete>
+</mapper>

@@ -1,0 +1,17 @@
+.ttab td {
+	border: solid 1px #b5d6e6;
+}
+
+table {
+	border: 0px;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+th,td {
+	border: 0px;
+	border-collapse: collapse;
+	border-spacing: 0;
+	padding: 0;
+	padding-left: 15px;
+}

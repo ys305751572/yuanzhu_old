@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bluemobi.pro.pojo.Activities">
+
+	<resultMap type="com.bluemobi.pro.pojo.Activities" id="list">
+		<id column="id" property="id" />
+		<result column="content" property="content" />
+		<result column="createTime" property="createTime" />
+		<result column="provinceId" property="provinceId" />
+		<result column="cityId" property="cityId" />
+		<result column="typeId" property="typeId" />
+		<result column="stuUserId" property="stuUserId" />
+		<result column="startTime" property="startTime" />
+		<result column="endTime" property="endTime" />
+		<result column="picture" property="picture" />
+		<result column="maxCount" property="maxCount" />
+		<result column="status" property="status" />
+		<result column="location" property="location" />
+		<collection property="commentList" ofType="com.bluemobi.pro.pojo.ActComment">
+			<id property="id" column="commentId" />
+			<result property="activityId" column="activityId" />
+			<result property="stuUserId" column="mStuUserId" />
+			<result property="content" column="mContent" />
+			<result property="createTime" column="mCreateTime" />
+		</collection>
+	</resultMap>
+
+	<!-- 新增活动 -->
+	<insert id="insertEntity" parameterType="com.bluemobi.pro.pojo.Activities" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO activities 
+		<set>
+			<if test="content != null">
+				content = #{content},
+			</if>
+			<if test="createTime != null">
+			    createTime = #{createTime},
+			</if>
+			<if test="provinceId != null">
+				provinceId = #{provinceId},
+			</if>
+			<if test="cityId != null">
+				cityId = #{cityId},
+			</if>
+			<if test="schoolId != null">
+				schoolId = #{schoolId},
+			</if>
+			<if test="typeId != null">
+				typeId = #{typeId},
+			</if>
+			<if test="stuUserId != null">
+				stuUserId = #{stuUserId},
+			</if>
+			<if test="startTime != null">
+				startTime = #{startTime},
+			</if>
+			<if test="endTime != null">
+				endTime = #{endTime},
+			</if>
+			<if test="picture != null">
+				picture = #{picture},
+			</if>
+			<if test="maxCount != null">
+				maxCount = #{maxCount},	
+			</if>
+			<if test="location != null">
+				location = #{location},
+			</if>
+			<if test="pwidth != null">
+				pwidth = #{pwidth},
+			</if>
+			<if test="pheight != null">
+				pheight = #{pheight},
+			</if>
+			<if test="lon != null">
+				lon = #{lon},
+			</if>
+			<if test="lat != null">
+				lat = #{lat},
+			</if>
+			<if test="title != null">
+				title = #{title},
+			</if>
+			<if test="permission != null">
+				permission = #{permission}
+			</if>
+		</set>
+	</insert>
+	
+	<!-- yesong 查询活动类型 -->
+	<select id="queryActtype" resultType="java.util.HashMap">
+		select t.id,t.type as name from acttype t
+	</select>
+
+	<!-- yesong 2015-1-6 根据用户ID查询学校id及学校对应的省，市ID -->
+	<select id="queryGisByUserId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		select s.schoolId,s.provinceId,s.cityId from stuuser s WHERE s.id = #{id}
+	</select>
+
+    <!-- 根据查询条件查询活动 -->
+	<select id="find" parameterType="map" resultType="java.util.HashMap">
+		select
+		a.id,
+		a.content,
+		CAST(left(FROM_UNIXTIME(left(a.createTime,10)),19) AS CHAR) as time,
+		a.`status`
+		from activities as
+		a,stuuser as s
+		<where>
+			a.stuUserId = s.id
+			<if test="provinceId != null and provinceId != ''">
+				and a.provinceId=#{provinceId}
+			</if>
+			<if test="cityId != null and cityId != ''">
+				and a.cityId=#{cityId}
+			</if>
+			<if test="content != null and content != ''">
+				and a.content like CONCAT('%',#{content},'%')
+			</if>
+			<if test="createTime != null and createTime != ''">
+				and left(FROM_UNIXTIME(left(a.createTime,10)),10)=#{createTime}
+			</if>
+			<if test="stuUser != null and stuUser != ''">
+				and s.`name` like CONCAT('%',#{stuUser},'%')
+			</if>
+		</where>
+		ORDER BY a.createTime DESC
+	</select>
+
+    <!-- 查询已加入该活动的人员 -->
+	<select id="findJoinPerson" parameterType="map" resultType="java.util.HashMap">
+		select
+		s.id,
+		s.mobile,
+		s.nickname,
+		s.`name`,
+		s.sex,
+		s.startYear,
+		(select proName from scs where s.schoolId = id and s.provinceId = provinceId and s.cityId = cityId) as school,
+		(select proName from scs where s.collegeId = id and pid = s.schoolId and s.provinceId = provinceId and s.cityId = cityId ) as college
+		from stuuser as s
+		WHERE s.id in (select sa.stuUserId from sajoin as sa where sa.activitilyId
+		=
+		#{id} and sa.`status` = 1)
+	</select>
+
+	<!-- 根据ID查询活动 -->
+	<select id="findOne" parameterType="map" resultType="java.util.HashMap">
+		select
+		id,
+		content,
+		(select type from acttype where a.typeId = id) as type,
+		stuUserId,
+		(select
+		`name` from stuuser where a.stuUserId = id) as stuUser,
+		CAST(left(FROM_UNIXTIME(left(startTime,10)),19) as CHAR) as startTime,
+		CAST(left(FROM_UNIXTIME(left(endTime,10)),19) as CHAR)as endTime,
+		picture,
+		maxCount,
+		`status`,
+		(select count(*) from
+		sajoin where a.id = activitilyId and `status` = 1) as joinCount,
+		location
+		from activities as a
+		where a.id = #{id}
+	</select>
+
+    <!-- 翻页查询活动 -->
+	<select id="page" parameterType="map" resultType="java.util.HashMap">
+		SELECT
+		DISTINCT a.id,
+		IFNULL(a.title,"") title,
+		a.content,
+		a.picture,
+		a.status,
+		users.head,
+		users.name,
+		a.createTime,
+		a.pwidth,
+		a.pheight,
+		a.lon,
+		a.lat,
+		(select count(*) from activities ac join sacollect ct on ac.id = ct.activitilyId where ct.activitilyId = a.id) fcount,
+		a.stuUserId createId,
+		
+		case when
+		(SELECT count(*) FROM sajoin s WHERE s.activitilyId = a.id and s.status = 1) &gt;=
+		a.maxCount then 0
+		when (SELECT count(*) FROM sajoin s WHERE
+		s.activitilyId = a.id and s.status = 1) &lt;
+		a.maxCount then 1 end isFull,
+		
+		(SELECT count(*) FROM praise WHERE activityId = a.id) praiseNum,
+		
+		case
+		when 
+		(SELECT count(*) FROM praise WHERE activityId = a.id AND stuUserId = #{userId}) &lt;= 0 then 1
+		when
+		(SELECT count(*) FROM praise WHERE activityId = a.id AND stuUserId = #{userId}) &gt; 0 then 0
+		end isPraise,
+		
+		(SELECT
+		count(*) FROM sacollect c WHERE c.activitilyId = a.id) favoriteCount,
+		
+		(SELECT count(*) FROM actcomment ac WHERE ac.activityId = a.id)
+		commentCount,
+		
+		case 
+		when (SELECT count(*) FROM sacollect c1 WHERE
+		c1.activitilyId = a.id
+		AND c1.stuUserId = #{userId} ) &gt; 0 then 0
+		when 
+		(SELECT count(*) FROM sacollect c1 WHERE c1.activitilyId = a.id
+		AND c1.stuUserId = #{userId} ) = 0 then 1 
+		end isFavorite
+		<if test="addUserId != null and addUserId != ''">
+			,isnew
+		</if>
+		FROM
+		activities a
+		JOIN
+		stuuser users
+		ON
+		users.id = a.stuUserId
+		<if test="favoriteUserId != null and favoriteUserId != ''">
+			JOIN
+				sacollect sa
+			ON
+			    sa.activitilyId = a.id and #{favoriteUserId} = sa.stuUserId
+		</if>
+		<if test="applyUserId != null and applyUserId != ''">
+			JOIN
+				sajoin sj
+			ON
+				sj.activitilyId = a.id and #{applyUserId} = sj.stuUserId AND sj.status = 1
+		</if>
+		<if test="searchWord != null and searchWord != ''">
+			JOIN
+				acttype tp 
+			ON 
+			    (a.typeId = tp.id AND tp.type like CONCAT('%',#{searchWord},'%'))
+			OR
+			    a.content like CONCAT('%',#{searchWord},'%')
+			OR
+				a.title LIKE CONCAT('%', #{searchWord}, '%')
+		</if>
+		<where>
+			<if test="schoolId != null and schoolId != ''">
+				AND a.schoolId = #{schoolId}
+			</if>
+			<if test="schoolId == null">
+				AND 
+					(a.permission = 0 OR a.schoolId = (SELECT u.schoolId FROM stuuser u WHERE u.id = #{userId}))
+			</if>
+			<if test="cityId != null and cityId != ''">
+				AND a.cityId = #{cityId}
+			</if>
+			<if test="provinceId != null and provinceId != ''">
+				AND a.provinceId = #{provinceId}
+			</if>
+			<if test="addUserId != null and addUserId != ''">
+				AND a.stuUserId = #{addUserId}
+			</if>
+			<if test="status != null and status != ''">
+				AND a.status = #{status}
+			</if>
+		</where>
+		<if test="orderBy == 0">
+			ORDER BY a.createTime DESC
+		</if>
+		<if test="orderBy == 1">
+			ORDER BY fcount DESC
+		</if>
+	</select>
+
+	<!-- 查询活动详情 -->
+	<select id="queryDetailAct" parameterType="java.util.HashMap"
+		resultType="java.util.HashMap">
+		SELECT
+		a.id,
+		a.content,
+		IFNULL(a.title,"") title,
+		a.stuUserId userId,
+		a.createTime,
+		a.startTime,
+		a.endTime,  
+		a.picture,
+		a.maxCount,
+		a.location,
+		a.lon,
+		a.lat,
+		a.pwidth,
+		a.pheight,
+		users.head,
+		users.name,
+		a.typeId,
+		(select type from acttype ty
+		where a.typeId = ty.id) typeName,
+		
+		(SELECT count(*) FROM praise WHERE activityId = #{activityId}) praiseNum,
+		
+		case
+		when 
+		(SELECT count(*) FROM praise WHERE activityId = #{activityId} AND stuUserId = #{userId}) &lt;= 0 then 1
+		when
+		(SELECT count(*) FROM praise WHERE activityId = #{activityId} AND stuUserId = #{userId}) &gt; 0 then 0
+		end isPraise,
+		
+		case 
+		when 
+		(SELECT count(*) FROM
+		sajoin s WHERE s.activitilyId = a.id and s.status = 1) =
+		a.maxCount then 0
+		when
+		(SELECT count(*) FROM sajoin s WHERE s.activitilyId = a.id and s.status = 1) &lt;
+		a.maxCount then 1 end isFull,
+		
+		case 
+		when 
+		a.endTime &lt; #{currtime} then 0
+		when
+		a.endTime &gt;= #{currtime} then 1 end isEnd,
+		
+		case 
+		when (SELECT count(*) FROM sajoin s
+		WHERE s.activitilyId = a.id and
+		s.stuUserId = #{userId}) &gt; 0 then 0
+		when (SELECT count(*) FROM sajoin s WHERE s.activitilyId = a.id and
+		s.stuUserId = #{userId} and s.status = 1) = 0 then 1 end isJoin,
+		
+		(SELECT count(*) FROM
+		sacollect c WHERE c.activitilyId = a.id) favoriteCount,
+		(SELECT
+		count(*) FROM actcomment ac WHERE ac.activityId = a.id)
+		commentCount,
+		
+		case when (SELECT count(*) FROM sacollect c1 WHERE c1.activitilyId =
+		a.id
+		AND c1.stuUserId = #{userId} ) &gt; 0 then 0
+		when (SELECT
+		count(*) FROM sacollect c1 WHERE c1.activitilyId = a.id AND
+		c1.stuUserId = #{userId} ) = 0 then 1 end isFavorite,
+		
+		(select count(*) from sajoin sa where sa.activitilyId = a.id and sa.status = 1) userCount
+		
+		FROM
+			activities a
+		JOIN
+			stuuser users
+		ON
+			users.id = a.stuUserId
+		WHERE
+		a.id = #{activityId}
+	</select>
+
+	<!-- 新增评论 -->
+	<insert id="insertComment" parameterType="com.bluemobi.pro.pojo.ActComment">
+		INSERT INTO actcomment
+		<set>
+			<if test="activityId != null">
+				activityId = #{activityId},
+			</if>
+			<if test="stuUserId != null">
+				stuUserId = #{stuUserId},
+			</if>
+			<if test="content != null">
+				content = #{content},
+			</if>
+			<if test="createTime != null">
+				createTime = #{createTime},
+			</if>
+		</set>
+	</insert>
+
+    <!-- 查询评论 -->
+	<select id="queryComment" parameterType="map" resultType="java.util.HashMap">
+		SELECT id,activities,stuuserid,content,createtime from actcomment
+		WHERE 1= 1
+		<if test="activityId != null and activityId != ''">
+			AND activityId = #{activityId}
+		</if>
+		ORDER BY createTime DESC
+	</select>
+
+	<!-- 是否收藏 -->
+	<select id="isFavorite" parameterType="map" resultType="java.lang.Integer">
+		SELECT
+		count(*) FROM sacollect c1 WHERE c1.activitilyId = #{activityId} AND
+		c1.stuUserId = #{userId}
+	</select>
+
+	<!-- 新增收藏 -->
+	<insert id="insertFavorite" parameterType="map">
+		INSERT INTO sacollect
+		<set>
+			<if test="activityId != null">
+				activitilyId = #{activityId},
+			</if>
+			<if test="userId != null">
+				stuUserId = #{userId},
+			</if>
+		</set>
+	</insert>
+
+	<!-- 是否报名 -->
+	<select id="isJoin" parameterType="map" resultType="java.lang.Integer">
+		SELECT
+		count(*)
+		FROM
+		sajoin s
+		WHERE
+		s.activitilyId = #{activityId} and
+		s.stuUserId = #{userId}
+	</select>
+	
+	<select id="findJoinCountAndActCount" parameterType="map" resultType="map">
+		SELECT
+			s.maxCount,
+			s.stuUserId,
+			(SELECT count(*) FROM sajoin s WHERE s.activitilyId = #{id}) joinCount
+		FROM
+			activities s 
+		WHERE
+			s.id = #{id}
+	</select>
+
+	<!-- 新增报名 -->
+	<insert id="insertApply" parameterType="map">
+		INSERT INTO sajoin
+		<set>
+			<if test="activityId != null">
+				activitilyId = #{activityId},
+			</if>
+			<if test="userId != null">
+				stuUserId = #{userId},
+			</if>
+			<if test="createTime != null">
+				createTime = #{createTime}
+			</if>
+		</set>
+	</insert>
+	
+	<!-- 取消收藏活动   叶松 2014-12-15-->
+	<delete id="deleteFavorite" parameterType="java.util.HashMap">
+		DELETE FROM sacollect WHERE activitilyId = #{activityId} AND stuUserId = #{userId}
+	</delete>
+
+	<!-- 查询评论列表 -->
+	<select id="pageConmment" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT
+			a.id,
+			a.stuUserId userId ,
+			a.content,
+			IFNULL(a.reComment,"") feedback,
+			IFNULL(a.reUserId, "") reUserId,
+			IFNULL((SELECT s.name FROM stuuser s WHERE s.id = a.reUserId),"") reUserName,
+			IFNULL((SELECT s.head FROM stuuser s WHERE s.id = a.reUserId),"") reUserHead,
+			a.createTime ,
+			a.reTime,
+			u.name,
+			u.head
+		FROM
+			actcomment a
+		JOIN
+			stuuser u
+		ON
+			a.stuUserId = u.id
+		WHERE
+			activityId =
+			#{activityId}
+		ORDER BY createTime desc
+	</select>
+
+	<!-- 查询参与人员列表 -->
+	<select id="pageApply" parameterType="map" resultType="map">
+		SELECT
+		a.activitilyId id,
+		t.id userId,
+		t.name,
+		t.head,
+		a.status,
+		a.createTime
+		FROM
+		stuuser t
+		JOIN
+		sajoin a
+		ON
+		t.id =
+		a.stuUserId
+		WHERE 1 = 1
+		<if test="status != null and status != ''">
+			<if test="status == 1">
+				AND (a.status = 1 or  a.status = 2)
+			</if>
+			<if test="status == 0">
+				AND a.status = 0
+			</if>
+		</if>
+		AND a.activitilyId = #{activityId}
+		ORDER BY a.createTime DESC
+	</select>
+
+	<!-- 参与列表人员审核 -->
+	<update id="updateStatus" parameterType="map">
+		UPDATE sajoin SET status
+		= #{status} WHERE activitilyId = #{activityId} AND stuUserId =
+		#{userId}
+	</update>
+	
+	<!-- 更新活动状态 -->
+	<update id="update" parameterType="map">
+		update activities set
+		status=#{status}
+		where
+		id=#{id}
+	</update>
+	
+	<select id="selectOneUser" resultType="map">
+		select id from stuuser limit 1
+	</select>
+	
+	<!-- 改变群是否有新消息状态 -->
+	<update id="updateisnew" parameterType="map"> 
+		UPDATE 
+			activities a
+		SET 
+			a.isnew = 1
+		WHERE
+			a.id = #{activityId}
+	</update>
+	
+	<!--  清除新消息提醒标示 -->
+	<update id="clearNew" parameterType="map">
+		UPDATE
+			activities a
+		SET
+			a.isnew = 0
+		WHERE
+			a.id = #{activityId}
+	</update>
+	
+	<!-- 查询最后一条评论 -->
+	<select id="getLastComment" parameterType="map" resultType="map">
+		SELECT 
+			ac.stuUserId userId,
+			(SELECT s.head FROM stuuser s WHERE s.id = ac.stuUserId) avater,
+			(SELECT s.name FROM stuuser s WHERE s.id = ac.stuUserId) username,
+			ac.content,
+			ac.createTime,
+			IFNULL(ac.reComment,"") feedback,
+			IFNULL(ac.reUserId, "") reUserId,
+			IFNULL((SELECT s.name FROM stuuser s WHERE s.id = ac.reUserId),"") reUserName,
+			IFNULL((SELECT s.head FROM stuuser s WHERE s.id = ac.reUserId),"") reUserHead,
+			IFNULL(ac.reTime, "") reTime
+		FROM
+			actcomment ac
+		ORDER BY 
+			ac.id DESC
+		LIMIT
+			1
+	</select>
+	
+	<!-- 新增追加评论 -->
+	<update id="reComment" parameterType="map">
+		UPDATE
+			actcomment a
+		SET 
+			a.reComment = #{recomment},
+			a.reTime = #{reTime},
+			a.reUserId = #{userId}
+		WHERE
+			a.id = #{commentId}
+	</update>
+	
+	<!-- 活动点赞 -->
+	<insert id="praise" parameterType="map">
+		INSERT INTO
+			praise
+		(activityId,stuUserId)
+		VALUES
+		(#{activityId},#{userId})
+	</insert>
+	
+	<!-- 活动取消点赞 -->
+	<delete id="unpraise" parameterType="map">
+		DELETE FROM praise
+		WHERE
+			activityId = #{activityId}
+		AND
+			stuUserId = #{userId}
+	</delete>
+	
+	<!-- 查询是否点赞 -->
+	<select id="getPraise" parameterType="map" resultType="map">
+		SELECT
+			*
+		FROM
+			praise
+		WHERE
+			activityId = #{activityId}
+		AND
+			stuUserId = #{userId}
+	</select>
+	
+	<!-- 获取活动二维码 -->
+	<select id="getQrCode" parameterType="map" resultType="map">
+		SELECT 
+			qrCode
+		FROM
+			activities
+		WHERE
+			id = #{activityId}
+	</select>
+</mapper> 

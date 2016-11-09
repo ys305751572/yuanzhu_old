@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Users">
+
+	<resultMap id="usersResultMap" type="Users">
+		<id property="id" column="id" />
+		<result property="userName" column="userName" />
+		<result property="realName" column="realName" />
+		<result property="password" column="password" />
+		<result property="mobile" column="mobile" />
+		<result property="userType" column="userType" />
+		<result property="provinceId" column="provinceId"/>
+		<result property="cityId" column="cityId"/>
+		<result property="schoolId" column="schoolId"/>
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="usersResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="usersResultMap"></resultMap>
+
+	<!-- 新增后台用户信息 -->
+	<insert id="insert" parameterType="Users">
+		insert into users (
+		userName,
+		realName,
+		password,
+		mobile,
+		<if test="provinceId != null and provinceId != ''">
+			provinceId,
+		</if>
+		<if test="cityId != null and cityId != ''">
+			cityId,
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			schoolId,
+		</if>
+		userType
+		)values (
+		#{userName},
+		#{realName},
+		#{password},
+		#{mobile},
+		<if test="provinceId != null and provinceId != ''">
+			#{provinceId},
+		</if>
+		<if test="cityId != null and cityId != ''">
+			#{cityId},
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			#{schoolId},
+		</if>
+		#{userType}
+		)
+	</insert>
+
+	<!-- 更新后台用户信息 -->
+	<update id="update" parameterType="map">
+		update users set
+		id = id
+		<if test="userName != null and userName != ''">
+			,userName=#{userName}
+		</if>
+		<if test="realName != null and realName != ''">
+			,realName=#{realName}
+		</if>
+		<if test="password != null and password != ''">
+			,password=#{password}
+		</if>
+		<if test="mobile != null and mobile != ''">
+			,mobile=#{mobile}
+		</if>
+		<if test="userType != null and userType != ''">
+			,userType=#{userType}
+		</if>
+		<if test="provinceId != null and provinceId != ''">
+			,provinceId = #{provinceId}
+		</if>
+		<if test="cityId != null and cityId != ''">
+			,cityId = #{cityId}
+		</if>
+		<if test="schoolId != null and schoolId != ''">
+			,schoolId = #{schoolId}
+		</if>
+		where
+		id=#{id}
+	</update>
+
+	<!-- 修改后台用户密码 -->
+	<update id="updatePassword" parameterType="map">
+		update users set
+		password=#{password}
+		where
+		id=#{id} and password=#{oldPassword}
+	</update>
+
+	<!-- 根据ID删除后台用户信息 -->
+	<delete id="delete" parameterType="map">
+		delete from users
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据ID获取后台用户信息 -->
+	<select id="get" parameterType="map" resultMap="usersResultMap">
+		select
+		id,
+		userName,
+		realName,
+		password,
+		mobile,
+		provinceId,
+		cityId,
+		schoolId,
+		userType
+		from users
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取后台用户信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		userName,
+		realName,
+		password,
+		mobile,
+		userType
+		from users
+		<where>
+			1=1
+			<if test="id != null and id != ''">
+				and id=#{id}
+			</if>
+			<if test="userName != null and userName != ''">
+				and userName=#{userName}
+			</if>
+			<if test="realName != null and realName != ''">
+				and realName=#{realName}
+			</if>
+			<if test="password != null and password != ''">
+				and password=#{password}
+			</if>
+			<if test="mobile != null and mobile != ''">
+				and mobile=#{mobile}
+			</if>
+			<if test="userType != null and userType != ''">
+				and userType=#{userType}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getUsersByLoginName" parameterType="string" resultType="map">
+		select id from users where userName = #{userName}
+	</select>
+</mapper> 

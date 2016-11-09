@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="GBK" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.Config">
+	
+	<resultMap type="com.bluemobi.pro.pojo.Config" id="configResultMap">
+		<id column="id" property="id"/>
+		<result column="coin" property="coin"/>
+		<result column="coin_register" property="coinRegister"/>
+		<result column="coin_person" property="coinPerson"/>
+		<result column="coin_card" property="coinCard"/>
+		<result column="coin_us" property="coinUs"/>
+		<result column="coin_rec" property="coinRec"/>
+		<result column="coefficient" property="coefficient"/>
+		<result column="integral_release" property="integralRelease"/>
+		<result column="integral_accept" property="integralAccept"/>
+		<result column="integral_release_deduct" property="integralReleaseDeduct"/>
+		<result column="integral_accept_deduct" property="integralAcceptDeduct"/>
+	</resultMap>
+	
+	<!-- 查询配置信息 -->
+	<select id="find" parameterType="com.bluemobi.pro.pojo.Config" resultMap="configResultMap">
+		SELECT
+			t.id,
+			t.coin,
+			t.coin_register,
+			t.coin_person,
+			t.coin_card,
+			t.coin_us,
+			t.coin_rec,
+			t.coefficient,
+			t.integral_release,
+			t.integral_accept,
+			t.integral_release_deduct,
+			t.integral_accept_deduct
+		FROM
+			tb_config t
+		LIMIT
+			1
+	</select>
+	
+	<!-- 修改配置信息 -->
+	<update id="update" parameterType="com.bluemobi.pro.pojo.Config">
+		UPDATE
+			tb_config
+		<set>
+			<if test="coin != null and coin != ''">
+				coin = #{coin},
+			</if>
+			<if test="coinRegister != null and coinRegister != ''">
+				coin_register = #{coinRegister},
+			</if>
+			<if test="coinPerson != null and coinPerson != ''">
+				coin_person = #{coinPerson},
+			</if>
+			<if test="coinCard != null and coinCard != ''">
+				coin_card = #{coinCard},
+			</if>
+			<if test="coinUs != null and coinUs != ''">
+				coin_us = #{coinUs},
+			</if>
+			<if test="coinRec != null and coinRec != ''">
+				coin_rec = #{coinRec},
+			</if>
+			<if test="coefficient != null and coefficient != ''">
+				coefficient = #{coefficient},
+			</if>
+			<if test="integralRelease != null and integralRelease != ''">
+				integral_release = #{integralRelease},
+			</if>
+			<if test="integralAccept != null and integralAccept != ''">
+				integral_accept = #{integralAccept},
+			</if>
+			<if test="integralReleaseDeduct != null and integralReleaseDeduct != ''">
+				integral_release_deduct = #{integralReleaseDeduct},
+			</if>
+			<if test="integralAcceptDeduct != null and integralAcceptDeduct != ''">
+				integral_accept_deduct = #{integralAcceptDeduct}
+			</if>
+		</set>
+		WHERE
+			id = #{id}
+	</update>
+</mapper> 

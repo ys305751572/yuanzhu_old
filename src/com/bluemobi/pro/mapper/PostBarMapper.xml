@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bluemobi.pro.pojo.PostBar">
+	
+	<resultMap type="com.bluemobi.pro.pojo.PostBar" id="postBarResultMap">
+		<id column="id" property="id"/>
+		<result column="name" property="title"/>
+		<result column="short_name" property="shortName" />
+		<result column="image_id" property="imageId" />
+		<result column="content" property="content" />
+		<result column="index" property="index"/>
+		<result column="bar_manager_id" property="barManagerId" />
+		<result column="create_date" property="createDate" />
+		<result column="qrCode" property="qrCode" />
+		<result column="is_list" property="isList" />
+	</resultMap>
+	
+	<!-- 秀吧列表 -->
+	<select id="listPage" resultMap="postBarResultMap" parameterType="map">
+		SELECT
+			t.id,
+			t.name,
+			t.short_name,
+			t.content,
+			CASE
+			WHEN
+				(SELECT COUNT(*) FROM post_bar_permissions p WHERE p.post_bar_id = t.id AND p.user_id = #{userId}) &gt; 0
+			THEN
+				1
+			WHEN
+				(SELECT COUNT(*) FROM post_bar_permissions p WHERE p.post_bar_id = t.id AND p.user_id = #{userId}) &lt;= 0
+			THEN
+			    0
+			END
+				AS permissions
+ 		FROM
+			post_bar t
+		WHERE
+			1 = 1
+		AND
+			t.is_list = 1
+		ORDER BY 
+			t.index
+	</select>
+	<!-- /////////////////////////////////////////    后台管理       /////////////////////////////////////////////////////////////// -->
+	
+	
+	<select id="findMaxIndex" resultType="java.lang.Integer">
+		SELECT
+			max(a.index)
+		FROM
+			post_bar a
+	</select>
+	
+	
+	<select id="listPageMgr" resultMap="postBarResultMap" parameterType="map">
+		SELECT
+			t.id,
+			t.name,
+			t.short_name,
+			t.content,
+			t.index,
+			DATE_FORMAT(t.create_date,'%Y-%m-%d %H:%i:%s') create_date,
+			t.is_list
+ 		FROM
+			post_bar t
+		ORDER BY 
+			t.id 
+		DESC
+	</select>
+	
+	<!-- 查询备选用户，取消已选择的用户 -->
+	<select id="findUserListForAllot" parameterType="map" resultType="map">
+		SELECT 
+		  s.id,
+		  s.mobile,
+		  s.nickname,
+		  s.`name`,
+		  s.sex,
+		  s.provinceId,
+		  s.cityId,
+		  s.schoolId,
+		  s.collegeId,
+		  s.specialtyId,
+		  s.startYear,
+		  s.`status`,
+		  s.registerTime,
+		  s.recUserId
+		FROM
+		  stuuser s 
+		WHERE 1 = 1
+		AND
+		   s.`status` = 2 
+		<if test="name != null and name != ''">
+			AND s.name LIKE CONCAT('%', #{name}, '%')
+		</if>
+		<if test="mobile != null and mobile != ''">
+			AND s.mobile = #{mobile}
+		</if>
+		AND s.`id` NOT IN 
+		  (SELECT 
+		    p.`user_id` 
+		  FROM
+		    post_bar_permissions p 
+		  WHERE p.`post_bar_id` = #{postBarId})
+	</select>
+	
+	<!-- 保存有权限发帖用户ID -->
+	<insert id="insertPermissions" parameterType="map">
+		INSERT INTO
+			post_bar_permissions
+		(
+			user_id,
+			post_bar_id
+		)
+		VALUES
+		<foreach collection="list" item="item" separator=",">
+			(
+				#{item.userId},
+				#{item.postBarId}
+			)
+		</foreach>
+	</insert>
+	
+	<!-- 新增秀吧 -->
+	<insert id="insert" parameterType="com.bluemobi.pro.pojo.PostBar">
+		INSERT INTO 
+			post_bar
+		(
+			`name`,
+			short_name,
+			content,
+			`index`,
+			create_date
+		)
+		VALUES
+		(
+			#{title},
+			#{shortName},
+			#{content},
+			#{index},
+			NOW()
+		)
+	</insert>
+	
+	<!-- 更新秀吧 -->
+	<update id="update" parameterType="com.bluemobi.pro.pojo.PostBar">
+		UPDATE 
+			post_bar
+		<set>
+			<if test="title != null and title != ''">
+				name = #{title},
+			</if>
+			<if test="shortName != null and shortName != ''">
+				short_name = #{shortName},
+			</if>
+			<if test="content != null and content != ''">
+				content = #{content},
+			</if>
+			<if test="index != null and index != ''">
+				`index` = #{index},
+			</if>
+			<if test="isList != null and isList != ''">
+				is_list = #{isList,javaType = INTEGER}
+			</if>
+		</set>
+		WHERE
+			1 = 1
+		<if test="id != null and id != ''">
+			AND id = #{id}
+		</if>
+	</update>
+	
+	<!-- 查询秀吧详情 -->
+	<select id="findById" parameterType="map" resultMap="postBarResultMap">
+		SELECT
+			t.id,
+			t.name,
+			t.short_name,
+			t.content,
+			t.index,
+			t.create_date
+ 		FROM
+			post_bar t
+		WHERE
+			t.id = #{postBarId}
+	</select>
+	
+	<select id="findAllPostBarSelect" resultMap="postBarResultMap">
+		SELECT
+			t.id,
+			t.name
+ 		FROM
+			post_bar t
+		ORDER BY
+			t.id
+		DESC
+	</select>
+</mapper>

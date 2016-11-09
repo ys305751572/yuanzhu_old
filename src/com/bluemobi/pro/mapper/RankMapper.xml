@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.bluemobi.pro.service.impl.RankServiceImpl">
+
+	<!-- 获取群排行-->
+	<select id="getGrank" parameterType="map" resultType="map" >
+		SELECT 
+			g.id,
+			g.`name`,
+			g.head ,
+			g.groupType,
+			g.stuUserId,
+ 	 		(SELECT `name` FROM grouptype gt WHERE gt.id = g.groupType) groupTypeName,
+ 	 		g.message,
+ 	 		(SELECT count(*) FROM groupmember WHERE groupId = g.id) nums,
+ 	 		g.coin,
+ 	 		(SELECT COUNT(*) FROM friend f WHERE f.`stuUserId` = #{userId} AND f.`friendId` IN ( SELECT stuUserId FROM groupmember gm WHERE gm.`groupId` = g.id)) fnums,
+ 	 		
+ 	 		case
+			when 
+			(select count(*) from groupmember gm where gm.groupId = g.id and gm.stuUserId = #{userId}) &gt; 0 then 1
+			when
+			(select count(*) from groupmember gm where gm.groupId = g.id and gm.stuUserId = #{userId}) &lt;= 0 then 0
+			end isjoin,
+			
+			sum(gm.`monthsign`) counts
+		FROM 
+			groupinfo g 
+		JOIN
+			 `groupmember`  gm
+		ON
+			 g.id = gm.`groupId` 
+	
+        GROUP BY 
+            gm.`groupId` 
+	    ORDER BY 
+		    counts desc
+		LIMIT
+			20
+	</select>	
+	
+	<!-- 获取爱心排行 -->
+	<select id="getCrank" parameterType="map" resultType="map" >
+	  SELECT 
+		  s.id,
+		  s.`name`,
+		  s.`nickname`,
+		  s.`sex`,
+		  s.provinceId,
+		  s.cityId,
+		  s.cityId,
+		  s.head,
+		  s.`schoolId`,
+		  s.`collegeId`,
+		  s.`word`,
+	  CASE 
+		WHEN 
+		(SELECT COUNT(*) FROM friend f WHERE f.friendId = s.id AND f.stuUserId = #{userId}) &lt;= 0
+		THEN 0
+		WHEN 
+		(SELECT COUNT(*) FROM friend f WHERE f.friendId = s.id AND f.stuUserId = #{userId}) &gt; 0
+		THEN 1 END isfriend ,
+	  
+	  	sum(gm.monthsign) counts 
+	FROM
+	  	groupmember gm 
+	JOIN 
+		stuuser s 
+	ON 
+		gm.`stuUserId` = s.`id` 
+	GROUP BY 
+		gm.stuUserId 
+	ORDER BY 
+		counts 
+	DESC 
+	LIMIT 20 
+	</select>
+</mapper>
