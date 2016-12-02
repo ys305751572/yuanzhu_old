@@ -24,6 +24,10 @@ function placardlist() {
 					<td style="text-align: left;">${placard.title }</td>
 				</tr>
 				<tr>
+					<td style="text-align: right;">公告类型：</td>
+					<td style="text-align: left;">${placard.ptypeName }</td>
+				</tr>
+				<tr>
 					<td style="text-align: right;">公告链接：</td>
 					<td style="text-align: left;">${placard.linkUrl }</td>
 				</tr>

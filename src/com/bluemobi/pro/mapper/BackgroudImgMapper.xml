@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.BackgroudImg">
+
+	<resultMap type="com.bluemobi.pro.pojo.BackgroudImg" id="bgImgResult">
+		<id column="id" property="id" />
+		<result column="path" property="path" />
+		<result column="create_time" property="createTime" />
+	</resultMap>
+
+	<!-- 新增个性装扮 -->
+	<insert id="insert" parameterType="com.bluemobi.pro.pojo.BackgroudImg">
+		INSERT INTO
+		backgroudimg
+		(
+		path,
+		create_time
+		)
+		VALUES
+		(
+		#{path},
+		#{createTime}
+		)
+	</insert>
+
+	<!-- 删除个性装扮 -->
+	<delete id="delete" parameterType="java.lang.Integer">
+		DELETE FROM
+		backgroudimg
+		WHERE
+		id = #{id}
+	</delete>
+
+	<!-- 查询个性装扮 -->
+	<select id="findAll" resultMap="bgImgResult">
+		SELECT
+		*
+		FROM
+		backgroudimg
+		ORDER BY
+		id DESC
+
+	</select>
+
+	<!-- 查询用户个性装扮 -->
+	<select id="findByUserId" parameterType="java.lang.Integer"
+		resultType="java.lang.String">
+		SELECT
+			IFNULL(ub.bgimg_path,"") as path
+		FROM
+			user_bgimg ub
+		WHERE 
+			ub.user_id = #{userId}
+	</select>
+
+	<!-- 设置个性装扮 -->
+	<insert id="setByUserId" parameterType="com.bluemobi.pro.pojo.UserBgImg">
+		INSERT INTO
+		user_bgimg
+		(
+		user_id,
+		bgimg_path,
+		create_time
+		)
+		VALUES
+		(
+		#{userId},
+		#{bgimgPath},
+		#{createTime}
+		)
+	</insert>
+
+	<!-- 修改个性装扮 -->
+	<update id="updateByUserId" parameterType="com.bluemobi.pro.pojo.UserBgImg">
+		UPDATE
+			user_bgimg
+		SET
+			bgimg_path = #{bgimgPath}
+		WHERE
+			user_id = #{userId}
+	</update>
+
+	<!-- 查询用户是否已经设置过个性装扮 -->
+	<select id="findUserBgImgByUserId" parameterType="java.lang.Integer"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*) 
+			counts
+		FROM
+			user_bgimg
+		WHERE
+			user_id = #{userId}
+	</select>
+</mapper> 

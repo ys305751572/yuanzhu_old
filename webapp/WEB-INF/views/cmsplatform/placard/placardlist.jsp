@@ -309,7 +309,6 @@
 		}
 	};
 </script>
-
 <body>
 	<div class="easyui-layout" data-options="fit:true,border:false">
 		<div 

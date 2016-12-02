@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.bluemobi.constant.Constant;
 import com.bluemobi.sys.page.Page;
 
@@ -55,12 +57,12 @@ public final class Result {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Result success(Object data) {
+	public static Result success(Object data,String... name) {
 		Result result = new Result();
 		result.status = SUCCESS;
 		result.msg = "";
 		if(data instanceof List) {
-			result.data.put("list", BeanUtils.listToMap((List)data));
+			result.data.put("list", data);
 		}
 		else if(data instanceof Page) {
 			Page page = (Page) data;
@@ -73,11 +75,21 @@ public final class Result {
             result.data.put("list", BeanUtils.listToMap(list));
 		}
 		else if(data instanceof Map) {
-			result.data.put("object", BeanUtils.mapToMap((Map)data));
+			String keyName = "object";
+			if(StringUtils.isNotBlank(name[0])) {
+				keyName = name[0];
+			}
+			result.data.put(keyName, data);
 		}
 		else {
-			String objName = data.getClass().getSimpleName().toLowerCase();
-			result.data.put(objName, BeanUtils.beanToMap(data));
+			String objName = "";
+			if(StringUtils.isNotBlank(name[0])) {
+				objName = name[0];
+			}
+			else {
+				objName = data.getClass().getSimpleName().toLowerCase();
+			}
+			result.data.put(objName,data);
 		}
 		return result;
 	}

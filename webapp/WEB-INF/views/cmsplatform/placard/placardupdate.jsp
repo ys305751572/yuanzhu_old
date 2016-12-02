@@ -26,11 +26,14 @@
 				loadCity();
 			}
 		});
+		
+		loadPlacardType();
 
 		$("#province").combobox("select", ${placard.provinceId});
 		$("#city").combobox("select", ${placard.cityId});
 		$("#school").combobox("select", ${placard.schoolId});
 		$("#college").combobox("select", ${placard.collegeId});
+		$("#ptype").combobox("select", ${placard.ptype});
 	});
 
 	function loadCity() {
@@ -75,6 +78,24 @@
 				});
 	}
 	
+	// 加载公告类型
+	function loadPlacardType() {
+		$('#ptype').combobox(
+		{
+			url : global_ctxPath + '/findTypeByParamsList',
+			valueField : "id",
+			textField : "type",
+			editable : false,
+			width : 150,
+			multiple : false,
+			required : false,
+			dataType : 'json',
+			onLoadSuccess : function() {
+			}
+		});
+	}
+	
+	
 	// 加载学院信息
 	function loadCollege() {
 		$('#college').combobox(
@@ -104,6 +125,7 @@
 		var cityid = $('#city').combobox('getValue');
 		var schoolid = $('#school').combobox('getValue');
 		var collegeid = $('#college').combobox('getValue');
+		var ptype = $('#ptype').combobox('getValue');
 		var IMG = $('#picture').attr('src');
 
 		if (content.replace(/\s/gi, '').length < 1) {
@@ -143,6 +165,7 @@
 				"title" : title,
 				"linkUrl" : $("#linkUrl").val(),
 				"IMG" : IMG,
+				"ptype" :ptype,
 				"type": $("input[name='type']:checked").val()
 			},
 			success : function(data) {
@@ -177,6 +200,12 @@
 						<input type="radio" id="normaluser" name="type" value="2" <c:if test="${placard.type eq 2}">checked="checked"</c:if>/>
 						<label style="cursor:pointer" for="normaluser">对内</label>
 					</td>
+				</tr>
+				<tr>
+					<td style="text-align: right;">公告类型<span style="color: red;">*</span>：</td>
+					<td style="text-align: left;"><select id="ptype"
+						name="ptype" class="easyui-combobox" style="width: 100px;"
+						data-options="editable:false"></select></td>
 				</tr>
 				<tr>
 					<td style="text-align: right;">省份<span style="color: red;">*</span>：</td>

@@ -1,8 +1,12 @@
 package com.bluemobi.sys.servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
@@ -23,7 +27,19 @@ public class ApiRequestFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-    	
+    	 String urls = filterConfig.getInitParameter("skipUrls");
+         if (StringUtils.isNotBlank(urls)) {
+             String temp[] = urls.split(",");
+             List<String> list = new ArrayList<String>();
+
+             for (String skipUrl : temp) {
+                 if (StringUtils.isNotBlank(skipUrl)) {
+                     skipUrl = "^" + skipUrl.replaceAll("\\*", ".*") + "$";
+                     list.add(skipUrl);
+                 }
+             }
+             SKIP_URLS = list.toArray(SKIP_URLS);
+         }
     }
 
 
@@ -34,6 +50,19 @@ public class ApiRequestFilter implements Filter {
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
+        String url = httpRequest.getRequestURI().toString();
+        String contextPath = httpRequest.getContextPath();
+        url = url.substring(contextPath.length());
+        if (SKIP_URLS != null) {
+            for (String skipUrl : SKIP_URLS) {
+                Pattern pattern = Pattern.compile(skipUrl, Pattern.DOTALL);
+                Matcher matcher = pattern.matcher(url);
+                if (matcher.find()) {
+                    chain.doFilter(request, response);
+                    return;
+                }
+            }
+        }
         
         Map<String,String[]> m = new HashMap<String,String[]>(httpRequest.getParameterMap());
         request = new ParameterRequestWrapper((HttpServletRequest)request, m);

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="com.bluemobi.pro.pojo.PlacardType">
+
+	<resultMap id="placardtypeResultMap" type="PlacardType">
+		<id property="id" column="id" />
+		<result property="type" column="type" />
+	</resultMap>
+	<resultMap id="pageResultMap" type="java.util.HashMap"
+		extends="placardtypeResultMap"></resultMap>
+	<resultMap id="findResultMap" type="java.util.HashMap"
+		extends="placardtypeResultMap"></resultMap>
+
+	<!-- 新增活动类型信息 -->
+	<insert id="insert" parameterType="PlacardType">
+		insert into placard_type (
+		id,
+		type
+		)values (
+		#{id},
+		#{type}
+		)
+	</insert>
+
+	<!-- 更新活动类型信息 -->
+	<update id="update" parameterType="map">
+		update placard_type set
+		type=#{type}
+		where
+		id=#{id}
+	</update>
+
+	<!-- 根据ID删除活动类型信息 -->
+	<delete id="delete" parameterType="map">
+		delete from
+		placard_type
+		where
+		id=#{id}
+	</delete>
+
+	<!-- 根据条件获取活动类型信息 -->
+	<select id="get" parameterType="map" resultMap="placardtypeResultMap">
+		select
+		id,
+		type
+		from placard_type
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="type != null">
+				and type=#{type}
+			</if>
+		</where>
+	</select>
+
+	<!-- 根据ID获取指定活动类型信息 -->
+	<select id="findOne" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		type
+		from placard_type
+		where
+		id=#{id}
+	</select>
+
+	<!-- 获取活动类型信息列表 -->
+	<select id="find" parameterType="map" resultMap="findResultMap">
+		select
+		id,
+		type
+		from placard_type
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="type != null">
+				and type=#{type}
+			</if>
+		</where>
+	</select>
+
+	<!-- 获取活动类型信息列表（分页） -->
+	<select id="page" parameterType="map" resultMap="pageResultMap">
+		select
+		id,
+		type
+		from placard_type
+		<where>
+			<if test="id != null">
+				id=#{id}
+			</if>
+			<if test="type != null">
+				and type=#{type}
+			</if>
+		</where>
+	</select>
+</mapper> 

@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 
 /**
  * @see 公共工具类
@@ -20,6 +21,7 @@ import java.util.Properties;
 public class CommonUtils {
 
 	private static Properties properties = null;
+
 	static {
 		if (properties == null) {
 			properties = new Properties();
@@ -37,7 +39,8 @@ public class CommonUtils {
 	 * @throws InstantiationException
 	 * @throws InvocationTargetException
 	 */
-	public static Object convertMapToPOJO(Class<?> type, Map<String, Object> map) throws IntrospectionException, IllegalAccessException, InstantiationException, InvocationTargetException {
+	public static Object convertMapToPOJO(Class<?> type, Map<String, Object> map)
+			throws IntrospectionException, IllegalAccessException, InstantiationException, InvocationTargetException {
 		BeanInfo beanInfo = Introspector.getBeanInfo(type); // 获取类属性
 		Object obj = type.newInstance(); // 创建 JavaBean 对象
 
@@ -63,5 +66,30 @@ public class CommonUtils {
 	 */
 	public static Date getCurrentDate(String fomater) {
 		return new Date();
+	}
+
+	public static String mapToXml(Map<String, Object> map) {
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<xml>");
+
+		for (Map.Entry<String, Object> entity : map.entrySet()) {
+			String key = entity.getKey();
+			Object obj = entity.getValue();
+
+			buffer.append("<").append(key).append(">").append(obj.toString()).append("</").append(key).append(">");
+		}
+		buffer.append("</xml>");
+		return buffer.toString();
+	}
+
+	/**
+	 * 生成订单号
+	 */
+	public static String generateSn() {
+		Random r = new Random();
+		int random = r.nextInt(1000);
+		long current = System.currentTimeMillis();
+		return String.valueOf(current) + String.valueOf(random);
 	}
 }

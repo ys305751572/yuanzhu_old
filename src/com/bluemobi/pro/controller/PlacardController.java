@@ -20,11 +20,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import com.bluemobi.pro.pojo.City;
 import com.bluemobi.pro.pojo.Placard;
 import com.bluemobi.pro.pojo.PlacardRecord;
+import com.bluemobi.pro.pojo.PlacardType;
 import com.bluemobi.pro.pojo.Province;
 import com.bluemobi.pro.pojo.RecordVo;
 import com.bluemobi.pro.pojo.Scs;
 import com.bluemobi.pro.pojo.StuUser;
 import com.bluemobi.pro.service.impl.PlacardServiceImpl;
+import com.bluemobi.pro.service.impl.PlacardTypeServiceImpl;
 import com.bluemobi.sys.bean.DataCache;
 import com.bluemobi.sys.page.Page;
 import com.bluemobi.sys.pojo.Sysuser;
@@ -41,6 +43,9 @@ public class PlacardController {
 
     @Autowired
     private PlacardServiceImpl placardServiceImpl;
+    
+    @Autowired
+    private PlacardTypeServiceImpl PlacardTypeServiceImpl;
 
     // ****************************框架外代码*********************************
 
@@ -170,6 +175,28 @@ public class PlacardController {
         return li;
     }
 
+    /**
+     * 根据条件查询城市
+     * 
+     * @return
+     */
+    @RequestMapping("findTypeByParamsList")
+    @ResponseBody
+    public List<PlacardType> findTypeByParamsList(@RequestParam Map<String, Object> params) {
+        List<PlacardType> li = null;
+        try {
+            li = PlacardTypeServiceImpl.findAll();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        PlacardType type = new PlacardType();
+        type.setId(-1);
+        type.setType("全部");
+        li.add(0,type);
+        return li;
+    }
+    
     /**
      * 根据条件查询城市
      * 

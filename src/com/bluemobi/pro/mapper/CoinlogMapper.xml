@@ -58,7 +58,16 @@
 		where
 		id=#{id}
 	</update>
-
+	
+	<update id="updaeStatus" parameterType="java.util.Map">
+		UPDATE
+			coinlog
+		SET
+			status1 = #{status1}
+		WHERE
+			orderid = #{sn}
+	</update>
+	
 	<!-- 根据ID删除充值记录信息 -->
 	<delete id="delete" parameterType="map">
 		delete from
@@ -176,5 +185,15 @@
 	<!-- 获取充值记录总额 -->
 	<select id="getAllMoney" resultType="double">
 		SELECT SUM(money) FROM coinlog
+	</select>
+	
+	<!-- 根据订单号查询订单信息 -->
+	<select id="findBySn" resultMap="coinlogResultMap" parameterType="java.lang.String">
+		SELECT	
+			*
+		FROM
+			coinlog
+		WHERE
+			orderid = #{sn}
 	</select>
 </mapper> 

@@ -25,10 +25,28 @@ public class Placard extends BaseEntity {
     private java.lang.Integer schoolId; // 学校编号
     private int collegeId; // 学院编号
     private int type; // 类别 1对外 2对内
+    private int ptype; // 公告类型
+    private String ptypeName; // 公告类型名称
     private java.lang.String picture; // 公告图片URL
     private String linkUrl; // 链接地址
     
-    public String getLinkUrl() {
+    public String getPtypeName() {
+		return ptypeName;
+	}
+
+	public void setPtypeName(String ptypeName) {
+		this.ptypeName = ptypeName;
+	}
+
+	public int getPtype() {
+		return ptype;
+	}
+
+	public void setPtype(int ptype) {
+		this.ptype = ptype;
+	}
+
+	public String getLinkUrl() {
 		return linkUrl;
 	}
 

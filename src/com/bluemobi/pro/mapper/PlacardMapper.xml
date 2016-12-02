@@ -17,6 +17,8 @@
 		<result property="collegeId" column="collegeId"/>
 		<result property="userType" column="userType"/>
 		<result property="linkUrl" column="linkUrl"/>
+		<result property="ptype" column="ptype"/>
+		<result property="ptypeName" column="ptypeName"/>
 	</resultMap>
 	<resultMap id="pageResultMap" type="java.util.HashMap"
 		extends="placardResultMap"></resultMap>
@@ -57,9 +59,13 @@
 			<if test="type != null">
 				type = #{type},
 			</if>
+			<if test="ptype != null">
+				ptype = #{ptype},
+			</if>
 			<if test="linkUrl != null">
 				linkUrl = #{linkUrl}
 			</if>
+			
 		</set>
 	</insert>
 
@@ -97,6 +103,9 @@
 		<if test="linkUrl != null and linkUrl != ''">
 			,linkUrl = #{linkUrl}
 		</if>
+		<if test="ptype != null and ptype != ''">
+			,ptype = #{ptype}
+		</if>
 		where
 		id=#{id}
 	</update>
@@ -122,6 +131,7 @@
 	collegeId,
 	type,
 	picture,
+	ptype,
 	linkUrl
 	from
 	placard
@@ -146,6 +156,7 @@
 		proName from
 		scs s where id = schoolId and `level` = 1 and s.provinceId = p.provinceId and s.cityId = p.cityId) as school,
 		p.picture,
+		(select type from placard_type pt where pt.id = p.ptype ) AS ptypeName,
 		p.linkUrl
 		from
 		placard p
@@ -179,6 +190,7 @@
 		p.schoolId,
 		p.picture,
 		p.type,
+		p.ptype,
 		p.title,
 		u.userType,
 		p.linkUrl
@@ -233,6 +245,7 @@
 		p.schoolId,
 		IFNULL(p.picture,"") picture,
 		p.type,
+		p.ptype,
 		p.title,
 		p.linkUrl
 		from placard as p
@@ -273,6 +286,13 @@
 			</if>
 			<if test="picture != null and picture != ''">
 				and p.picture=#{picture}
+			</if>
+			<if test="ptype != null and ptype != ''">
+				and p.ptype in
+			 <foreach item="item" index="index" collection="list" open="(" separator="," close=")">  
+			  	(#{item})
+			 </foreach>  
+				
 			</if>
 			<if test="searchName != null and searchName != ''">
 				and (p.`schoolId` IN 
