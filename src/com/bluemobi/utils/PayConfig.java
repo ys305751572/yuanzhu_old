@@ -13,7 +13,7 @@ public class PayConfig {
 	
 	public final static String IP = "121.40.65.202";
 	public final static String NOTIFY_URL_WEIXIN = "http://"+ IP +":8080/yuanzhu/api/weixiNotify";
-	public final static String NOTIFY_URL_ALIPAY = "http://"+ IP +":8080/app/pay/alipayNotify";
+	public final static String NOTIFY_URL_ALIPAY = "http://"+ IP +":8080/yuanzhu/app/pay/alipayNotify";
 
 //	public final static String NOTIFY_URL_WEIXIN = "http://112.74.197.62:8080/yuanzhu/api/weixiNotify";
 //	public final static String NOTIFY_URL_ALIPAY = "http://112.74.197.62:8080/app/pay/alipayNotify";
